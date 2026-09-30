@@ -11,6 +11,8 @@ import 'widgets/sales_chart.dart';
 import 'widgets/recent_transactions_list.dart';
 import 'widgets/top_products_list.dart';
 
+import '../../../../core/layout/app_drawer.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -39,6 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Nexa POS - Dashboard'),
         actions: [
