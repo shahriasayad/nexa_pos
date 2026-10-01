@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:nexa_pos/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:nexa_pos/features/products/presentation/screens/product_list_screen.dart';
 import 'package:nexa_pos/features/categories/presentation/screens/category_list_screen.dart';
+import 'package:nexa_pos/features/inventory/presentation/screens/inventory_list_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/';
   static const String products = '/products';
   static const String categories = '/categories';
+  static const String inventory = '/inventory';
 }
 
 class AppRouter {
@@ -18,6 +20,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ProductListScreen(), settings: settings);
       case AppRoutes.categories:
         return MaterialPageRoute(builder: (_) => const CategoryListScreen(), settings: settings);
+      case AppRoutes.inventory:
+        return MaterialPageRoute(builder: (_) => const InventoryListScreen(), settings: settings);
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
