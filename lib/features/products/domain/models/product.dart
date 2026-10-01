@@ -1,3 +1,5 @@
+enum StockStatus { inStock, lowStock, outOfStock }
+
 class Product {
   final String id;
   final String name;
@@ -17,6 +19,12 @@ class Product {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  StockStatus get stockStatus {
+    if (stockQuantity <= 0) return StockStatus.outOfStock;
+    if (stockQuantity <= minimumStock) return StockStatus.lowStock;
+    return StockStatus.inStock;
+  }
 
   Product({
     required this.id,

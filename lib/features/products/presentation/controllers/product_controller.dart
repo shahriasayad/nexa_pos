@@ -20,6 +20,8 @@ class ProductController extends ChangeNotifier {
   
   String? searchQuery;
   String? selectedCategoryId;
+  StockStatus? selectedStockStatus;
+  bool? isActiveFilter;
 
   Future<void> loadProducts() async {
     state = ViewState.loading;
@@ -31,10 +33,16 @@ class ProductController extends ChangeNotifier {
         categories = await categoryRepo.getCategories();
       }
       
-      products = await productRepo.getProducts(
+      var rawProducts = await productRepo.getProducts(
         search: searchQuery,
         categoryId: selectedCategoryId,
       );
+
+      products = rawProducts.where((p) {
+        bool matchesStock = selectedStockStatus == null || p.stockStatus == selectedStockStatus;
+        bool matchesActive = isActiveFilter == null || p.isActive == isActiveFilter;
+        return matchesStock && matchesActive;
+      }).toList();
       
       state = products.isEmpty ? ViewState.empty : ViewState.success;
     } catch (e) {
@@ -54,6 +62,17 @@ class ProductController extends ChangeNotifier {
     selectedCategoryId = categoryId;
     loadProducts();
   }
+
+  void setStockStatus(StockStatus? status) {
+    selectedStockStatus = status;
+    loadProducts();
+  }
+
+  void setActiveFilter(bool? active) {
+    isActiveFilter = active;
+    loadProducts();
+  }
+
 
   Future<bool> saveProduct(Product product) async {
     try {
