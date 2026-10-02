@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/state/view_state.dart';
+import '../../products/data/repositories/mock_product_repository.dart';
+import '../../pos/data/repositories/mock_sales_repository.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/responsive_layout.dart';
@@ -27,7 +29,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _controller = DashboardController(
-      repository: MockDashboardRepository(),
+      repository: MockDashboardRepository(
+        salesRepo: MockSalesRepository(),
+        productRepo: MockProductRepository(),
+      ),
     );
     _controller.loadDashboardData();
   }

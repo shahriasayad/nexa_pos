@@ -11,11 +11,23 @@ class MockSalesRepository implements SalesRepository {
   }
 
   @override
-  Future<List<SaleTransaction>> getSales() async {
+  Future<List<SaleTransaction>> getSales({
+    DateTime? startDate,
+    DateTime? endDate,
+    PaymentMethod? paymentMethod,
+    SaleStatus? status,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    final sorted = List<SaleTransaction>.from(_sales);
-    sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    return sorted;
+    var filtered = _sales.where((s) {
+      if (startDate != null && s.timestamp.isBefore(startDate)) return false;
+      if (endDate != null && s.timestamp.isAfter(endDate)) return false;
+      if (paymentMethod != null && s.paymentMethod != paymentMethod) return false;
+      if (status != null && s.status != status) return false;
+      return true;
+    }).toList();
+    
+    filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return filtered;
   }
 
   @override
