@@ -46,6 +46,8 @@ class SaleTransaction {
   final double change;
   final SaleStatus status;
   final List<dynamic> returns; // List<ReturnTransaction> handled at repo/UI level to avoid circular dep
+  final String? customerId;
+  final String? customerName;
 
   SaleTransaction({
     required this.id,
@@ -60,12 +62,16 @@ class SaleTransaction {
     required this.change,
     required this.status,
     this.returns = const [],
+    this.customerId,
+    this.customerName,
   });
 
   SaleTransaction copyWith({
     SaleStatus? status,
     List<SaleItem>? items,
     List<dynamic>? returns,
+    String? customerId,
+    String? customerName,
   }) {
     return SaleTransaction(
       id: id,
@@ -80,6 +86,8 @@ class SaleTransaction {
       change: change,
       status: status ?? this.status,
       returns: returns ?? this.returns,
+      customerId: customerId ?? this.customerId,
+      customerName: customerName ?? this.customerName,
     );
   }
 }

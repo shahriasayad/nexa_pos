@@ -3,10 +3,13 @@ import '../../../../shared/widgets/responsive_layout.dart';
 import '../../../products/data/repositories/mock_product_repository.dart';
 import '../../../inventory/data/repositories/mock_inventory_repository.dart';
 import '../../data/repositories/mock_sales_repository.dart';
+import '../../../customers/data/repositories/mock_customer_repository.dart';
 import '../controllers/pos_controller.dart';
 import 'checkout_dialog.dart';
 import 'receipt_dialog.dart';
+import 'customer_selection_dialog.dart';
 import '../../../../core/layout/app_drawer.dart';
+import '../../../customers/domain/models/customer.dart';
 
 class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
@@ -26,6 +29,7 @@ class _PosScreenState extends State<PosScreen> {
       productRepo: MockProductRepository(),
       inventoryRepo: MockInventoryRepository(),
       salesRepo: MockSalesRepository(),
+      customerRepo: MockCustomerRepository(),
     );
     _controller.searchProducts(null);
   }
@@ -49,6 +53,18 @@ class _PosScreenState extends State<PosScreen> {
         context: context,
         builder: (_) => ReceiptDialog(sale: _controller.lastCompletedSale!),
       );
+    }
+  }
+
+  void _showCustomerSelection() async {
+    final result = await showDialog(
+      context: context,
+      builder: (_) => const CustomerSelectionDialog(),
+    );
+    if (result == 'clear') {
+      _controller.setCustomer(null);
+    } else if (result is Customer) {
+      _controller.setCustomer(result);
     }
   }
 
@@ -181,16 +197,19 @@ class _PosScreenState extends State<PosScreen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           color: Theme.of(context).primaryColor.withOpacity(0.1),
-          child: const Row(
-            children: [
-              Icon(Icons.shopping_cart),
-              SizedBox(width: 8),
-              Text('Current Cart', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ],
+          child: ListTile(
+            leading: const Icon(Icons.person),
+            title: Text(_controller.selectedCustomer?.name ?? 'Walk-in Customer'),
+            subtitle: Text(_controller.selectedCustomer != null ? 'Customer selected' : 'No customer attached'),
+            trailing: TextButton(
+              onPressed: _showCustomerSelection,
+              child: const Text('Change'),
+            ),
           ),
         ),
+        const Divider(height: 1),
         Expanded(
           child: _controller.cart.isEmpty
               ? const Center(child: Text('Cart is empty'))

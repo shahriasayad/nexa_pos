@@ -7,16 +7,20 @@ import '../../../inventory/domain/repositories/inventory_repository.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/sale_transaction.dart';
 import '../../domain/repositories/sales_repository.dart';
+import '../../../customers/domain/models/customer.dart';
+import '../../../customers/domain/repositories/customer_repository.dart';
 
 class PosController extends ChangeNotifier {
   final ProductRepository productRepo;
   final InventoryRepository inventoryRepo;
   final SalesRepository salesRepo;
+  final CustomerRepository customerRepo;
 
   PosController({
     required this.productRepo,
     required this.inventoryRepo,
     required this.salesRepo,
+    required this.customerRepo,
   });
 
   ViewState state = ViewState.initial;
@@ -30,6 +34,7 @@ class PosController extends ChangeNotifier {
   
   bool isProcessingCheckout = false;
   SaleTransaction? lastCompletedSale;
+  Customer? selectedCustomer;
 
   double get subtotal => cart.fold(0, (sum, item) => sum + item.lineTotal);
   double get discount => 0.0; // Phase 5 doesn't specify complex discount rules
@@ -97,6 +102,12 @@ class PosController extends ChangeNotifier {
 
   void clearCart() {
     cart.clear();
+    selectedCustomer = null;
+    notifyListeners();
+  }
+
+  void setCustomer(Customer? customer) {
+    selectedCustomer = customer;
     notifyListeners();
   }
 
@@ -151,6 +162,8 @@ class PosController extends ChangeNotifier {
         amountReceived: amountReceived,
         change: amountReceived - grandTotal,
         status: SaleStatus.completed,
+        customerId: selectedCustomer?.id,
+        customerName: selectedCustomer?.name,
       );
 
       // 3. Deduct inventory and log movements
@@ -179,8 +192,18 @@ class PosController extends ChangeNotifier {
       // 4. Save sale transaction
       await salesRepo.createSale(sale);
 
+      // 5. Update customer spending
+      if (selectedCustomer != null) {
+        final c = await customerRepo.getCustomerById(selectedCustomer!.id);
+        if (c != null) {
+          await customerRepo.updateCustomer(c.copyWith(
+            totalSpending: c.totalSpending + grandTotal,
+          ));
+        }
+      }
+
       lastCompletedSale = sale;
-      clearCart();
+      clearCart(); // This will also clear selectedCustomer
       isProcessingCheckout = false;
       notifyListeners();
       return true;
@@ -202,3 +225,4 @@ class PosController extends ChangeNotifier {
     notifyListeners();
   }
 }
+

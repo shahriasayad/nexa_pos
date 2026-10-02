@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
 import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
+import 'package:nexa_pos/features/customers/data/repositories/mock_customer_repository.dart';
 import 'package:nexa_pos/features/pos/presentation/controllers/pos_controller.dart';
 import 'package:nexa_pos/features/pos/domain/models/sale_transaction.dart';
 
@@ -11,15 +12,18 @@ void main() {
     late MockProductRepository productRepo;
     late MockInventoryRepository inventoryRepo;
     late MockSalesRepository salesRepo;
+    late MockCustomerRepository customerRepo;
 
     setUp(() {
       productRepo = MockProductRepository();
       inventoryRepo = MockInventoryRepository();
       salesRepo = MockSalesRepository();
+      customerRepo = MockCustomerRepository();
       controller = PosController(
         productRepo: productRepo,
         inventoryRepo: inventoryRepo,
         salesRepo: salesRepo,
+        customerRepo: customerRepo,
       );
     });
 
