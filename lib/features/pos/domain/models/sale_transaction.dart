@@ -8,6 +8,7 @@ class SaleItem {
   final double unitPrice;
   final int quantity;
   final double lineTotal;
+  final int returnedQuantity;
 
   SaleItem({
     required this.productId,
@@ -16,7 +17,20 @@ class SaleItem {
     required this.unitPrice,
     required this.quantity,
     required this.lineTotal,
+    this.returnedQuantity = 0,
   });
+  
+  SaleItem copyWith({int? returnedQuantity}) {
+    return SaleItem(
+      productId: productId,
+      productName: productName,
+      productSku: productSku,
+      unitPrice: unitPrice,
+      quantity: quantity,
+      lineTotal: lineTotal,
+      returnedQuantity: returnedQuantity ?? this.returnedQuantity,
+    );
+  }
 }
 
 class SaleTransaction {
@@ -31,6 +45,7 @@ class SaleTransaction {
   final double amountReceived;
   final double change;
   final SaleStatus status;
+  final List<dynamic> returns; // List<ReturnTransaction> handled at repo/UI level to avoid circular dep
 
   SaleTransaction({
     required this.id,
@@ -44,5 +59,27 @@ class SaleTransaction {
     required this.amountReceived,
     required this.change,
     required this.status,
+    this.returns = const [],
   });
+
+  SaleTransaction copyWith({
+    SaleStatus? status,
+    List<SaleItem>? items,
+    List<dynamic>? returns,
+  }) {
+    return SaleTransaction(
+      id: id,
+      timestamp: timestamp,
+      items: items ?? this.items,
+      subtotal: subtotal,
+      discount: discount,
+      tax: tax,
+      total: total,
+      paymentMethod: paymentMethod,
+      amountReceived: amountReceived,
+      change: change,
+      status: status ?? this.status,
+      returns: returns ?? this.returns,
+    );
+  }
 }

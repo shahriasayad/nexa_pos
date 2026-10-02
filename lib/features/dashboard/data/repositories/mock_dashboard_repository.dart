@@ -9,10 +9,7 @@ class MockDashboardRepository implements DashboardRepository {
   final SalesRepository salesRepo;
   final ProductRepository productRepo;
 
-  MockDashboardRepository({
-    required this.salesRepo,
-    required this.productRepo,
-  });
+  MockDashboardRepository({required this.salesRepo, required this.productRepo});
 
   DateTime _getStartDateForFilter(DashboardFilter filter) {
     final now = DateTime.now();
@@ -30,12 +27,18 @@ class MockDashboardRepository implements DashboardRepository {
   Future<DashboardMetrics> getMetrics(DashboardFilter filter) async {
     final startDate = _getStartDateForFilter(filter);
     final sales = await salesRepo.getSales(startDate: startDate);
-    
+
     double revenue = 0.0;
+    double refunds = 0.0;
     for (var s in sales) {
-      revenue += s.total;
+      double currentRefunds = 0;
+      for (var r in s.returns) {
+        currentRefunds += r.totalRefund;
+      }
+      revenue += (s.total - currentRefunds);
+      refunds += currentRefunds;
     }
-    
+
     // Simplistic chart data generation based on actual revenue
     List<double> chartData = List.generate(7, (i) => 0.0);
     if (sales.isNotEmpty) {
@@ -46,7 +49,7 @@ class MockDashboardRepository implements DashboardRepository {
       revenue: revenue,
       ordersCount: sales.length,
       estimatedProfit: revenue * 0.3, // Mock profit margin 30%
-      refunds: 0.0,
+      refunds: refunds,
       expenses: 0.0,
       chartData: chartData,
     );
@@ -55,29 +58,41 @@ class MockDashboardRepository implements DashboardRepository {
   @override
   Future<List<ProductSummary>> getLowStockProducts() async {
     final allProducts = await productRepo.getProducts();
-    final lowStock = allProducts.where((p) => p.stockQuantity <= p.minimumStock).toList();
-    return lowStock.map((p) => ProductSummary(
-      id: p.id,
-      name: p.name,
-      stockQuantity: p.stockQuantity,
-      price: p.sellingPrice,
-    )).toList();
+    final lowStock = allProducts
+        .where((p) => p.stockQuantity <= p.minimumStock)
+        .toList();
+    return lowStock
+        .map(
+          (p) => ProductSummary(
+            id: p.id,
+            name: p.name,
+            stockQuantity: p.stockQuantity,
+            price: p.sellingPrice,
+          ),
+        )
+        .toList();
   }
 
   @override
-  Future<List<ProductSummary>> getTopSellingProducts(DashboardFilter filter) async {
+  Future<List<ProductSummary>> getTopSellingProducts(
+    DashboardFilter filter,
+  ) async {
     final startDate = _getStartDateForFilter(filter);
     final sales = await salesRepo.getSales(startDate: startDate);
-    
+
     Map<String, int> productSales = {};
     for (var sale in sales) {
       for (var item in sale.items) {
-        productSales[item.productId] = (productSales[item.productId] ?? 0) + item.quantity;
+        final netQty = item.quantity - item.returnedQuantity;
+        if (netQty > 0) {
+          productSales[item.productId] =
+              (productSales[item.productId] ?? 0) + netQty;
+        }
       }
     }
 
     final allProducts = await productRepo.getProducts();
-    
+
     var topSelling = productSales.entries.map((e) {
       final p = allProducts.where((prod) => prod.id == e.key).firstOrNull;
       return ProductSummary(
@@ -88,20 +103,25 @@ class MockDashboardRepository implements DashboardRepository {
         soldQuantity: e.value,
       );
     }).toList();
-    
+
     topSelling.sort((a, b) => b.soldQuantity.compareTo(a.soldQuantity));
-    
+
     return topSelling.take(5).toList();
   }
 
   @override
   Future<List<TransactionSummary>> getRecentTransactions(int limit) async {
     final sales = await salesRepo.getSales();
-    return sales.take(limit).map((s) => TransactionSummary(
-      id: s.id,
-      date: s.timestamp,
-      total: s.total,
-      status: s.status.name.toUpperCase(),
-    )).toList();
+    return sales
+        .take(limit)
+        .map(
+          (s) => TransactionSummary(
+            id: s.id,
+            date: s.timestamp,
+            total: s.total,
+            status: s.status.name.toUpperCase(),
+          ),
+        )
+        .toList();
   }
 }

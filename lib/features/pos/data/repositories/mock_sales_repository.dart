@@ -1,5 +1,6 @@
 import '../../domain/models/sale_transaction.dart';
 import '../../domain/repositories/sales_repository.dart';
+import '../../../returns/domain/models/return_transaction.dart';
 
 class MockSalesRepository implements SalesRepository {
   final List<SaleTransaction> _sales = [];
@@ -38,5 +39,37 @@ class MockSalesRepository implements SalesRepository {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Future<void> returnItems(String saleId, ReturnTransaction returnTx) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final saleIndex = _sales.indexWhere((s) => s.id == saleId);
+    if (saleIndex == -1) throw Exception('Sale not found');
+    
+    final sale = _sales[saleIndex];
+    final updatedItems = sale.items.map((item) {
+      final returned = returnTx.items.where((r) => r.productId == item.productId).firstOrNull;
+      if (returned != null) {
+        return item.copyWith(returnedQuantity: item.returnedQuantity + returned.quantity);
+      }
+      return item;
+    }).toList();
+
+    bool allReturned = true;
+    for (var item in updatedItems) {
+      if (item.returnedQuantity < item.quantity) {
+        allReturned = false;
+        break;
+      }
+    }
+
+    final newStatus = allReturned ? SaleStatus.refunded : SaleStatus.completed;
+
+    _sales[saleIndex] = sale.copyWith(
+      status: newStatus,
+      items: updatedItems,
+      returns: [...sale.returns, returnTx],
+    );
   }
 }

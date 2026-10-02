@@ -6,7 +6,7 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../../domain/models/sale_transaction.dart';
 import '../../data/repositories/mock_sales_repository.dart';
 import '../controllers/transaction_history_controller.dart';
-import 'receipt_dialog.dart';
+import 'transaction_details_screen.dart';
 import '../../../../core/layout/app_drawer.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
@@ -32,10 +32,6 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     _searchController.dispose();
     _controller.dispose();
     super.dispose();
-  }
-
-  void _showReceipt(SaleTransaction sale) {
-    showDialog(context: context, builder: (_) => ReceiptDialog(sale: sale));
   }
 
   void _openFilterDialog() async {
@@ -173,11 +169,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               title: Text('ID: ${sale.id}'),
               subtitle: Text('${sale.timestamp.toString().split('.')[0]} | ${sale.paymentMethod.name.toUpperCase()}'),
               trailing: Text('\$${sale.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              onTap: () => _showReceipt(sale),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransactionDetailsScreen(
+                      transactionId: sale.id,
+                      salesRepo: _controller.salesRepo as MockSalesRepository,
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
     }
-    return const SizedBox.shrink();
   }
 }
