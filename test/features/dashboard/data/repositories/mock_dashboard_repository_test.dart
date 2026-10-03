@@ -4,20 +4,24 @@ import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.da
 import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/pos/domain/models/sale_transaction.dart';
 import 'package:nexa_pos/features/returns/domain/models/return_transaction.dart';
+import 'package:nexa_pos/features/expenses/data/repositories/mock_expense_repository.dart';
 import 'package:nexa_pos/features/dashboard/domain/repositories/dashboard_repository.dart';
 
 void main() {
   group('MockDashboardRepository integration with returns', () {
     late MockSalesRepository salesRepo;
     late MockProductRepository productRepo;
+    late MockExpenseRepository expenseRepo;
     late MockDashboardRepository dashboardRepo;
 
     setUp(() async {
       salesRepo = MockSalesRepository();
       productRepo = MockProductRepository();
+      expenseRepo = MockExpenseRepository();
       dashboardRepo = MockDashboardRepository(
         salesRepo: salesRepo,
         productRepo: productRepo,
+        expenseRepo: expenseRepo,
       );
 
       final sale = SaleTransaction(

@@ -4,12 +4,18 @@ import '../../domain/models/transaction_summary.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../../../pos/domain/repositories/sales_repository.dart';
 import '../../../products/domain/repositories/product_repository.dart';
+import '../../../expenses/domain/repositories/expense_repository.dart';
 
 class MockDashboardRepository implements DashboardRepository {
   final SalesRepository salesRepo;
   final ProductRepository productRepo;
+  final ExpenseRepository expenseRepo;
 
-  MockDashboardRepository({required this.salesRepo, required this.productRepo});
+  MockDashboardRepository({
+    required this.salesRepo,
+    required this.productRepo,
+    required this.expenseRepo,
+  });
 
   DateTime _getStartDateForFilter(DashboardFilter filter) {
     final now = DateTime.now();
@@ -27,6 +33,10 @@ class MockDashboardRepository implements DashboardRepository {
   Future<DashboardMetrics> getMetrics(DashboardFilter filter) async {
     final startDate = _getStartDateForFilter(filter);
     final sales = await salesRepo.getSales(startDate: startDate);
+    
+    // Calculate expenses
+    final allExpenses = await expenseRepo.getExpenses(startDate: startDate);
+    final totalExpenses = allExpenses.fold<double>(0.0, (sum, e) => sum + e.amount);
 
     double revenue = 0.0;
     double refunds = 0.0;
@@ -48,9 +58,9 @@ class MockDashboardRepository implements DashboardRepository {
     return DashboardMetrics(
       revenue: revenue,
       ordersCount: sales.length,
-      estimatedProfit: revenue * 0.3, // Mock profit margin 30%
+      estimatedProfit: revenue * 0.3 - totalExpenses, // Deduct expenses from profit
       refunds: refunds,
-      expenses: 0.0,
+      expenses: totalExpenses,
       chartData: chartData,
     );
   }
