@@ -8,6 +8,7 @@ import 'package:nexa_pos/features/pos/presentation/screens/transaction_history_s
 import 'package:nexa_pos/features/customers/presentation/screens/customer_list_screen.dart';
 import 'package:nexa_pos/features/suppliers/presentation/screens/supplier_list_screen.dart';
 import 'package:nexa_pos/features/purchases/presentation/screens/purchase_list_screen.dart';
+import 'package:nexa_pos/features/expenses/presentation/screens/expense_list_screen.dart';
 
 class AppRoutes {
   static const String dashboard = '/';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String customers = '/customers';
   static const String suppliers = '/suppliers';
   static const String purchases = '/purchases';
+  static const String expenses = '/expenses';
 }
 
 class AppRouter {
@@ -42,6 +44,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SupplierListScreen(), settings: settings);
       case AppRoutes.purchases:
         return MaterialPageRoute(builder: (_) => const PurchaseListScreen(), settings: settings);
+      case AppRoutes.expenses:
+        return MaterialPageRoute(builder: (_) => const ExpenseListScreen(), settings: settings);
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

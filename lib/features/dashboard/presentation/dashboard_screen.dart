@@ -14,6 +14,7 @@ import 'widgets/recent_transactions_list.dart';
 import 'widgets/top_products_list.dart';
 
 import '../../../../core/layout/app_drawer.dart';
+import '../../expenses/data/repositories/mock_expense_repository.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,7 +22,6 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
-
 class _DashboardScreenState extends State<DashboardScreen> {
   late DashboardController _controller;
 
@@ -32,6 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       repository: MockDashboardRepository(
         salesRepo: MockSalesRepository(),
         productRepo: MockProductRepository(),
+        expenseRepo: MockExpenseRepository(),
       ),
     );
     _controller.loadDashboardData();
