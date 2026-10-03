@@ -62,6 +62,18 @@ class AppDrawer extends StatelessWidget {
             selected: currentRoute == AppRoutes.customers,
             onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.customers),
           ),
+          ListTile(
+            leading: const Icon(Icons.business),
+            title: const Text('Suppliers'),
+            selected: currentRoute == AppRoutes.suppliers,
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.suppliers),
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart_checkout),
+            title: const Text('Purchases'),
+            selected: currentRoute == AppRoutes.purchases,
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.purchases),
+          ),
         ],
       ),
     );
