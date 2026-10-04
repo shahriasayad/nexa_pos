@@ -7,6 +7,8 @@ import '../../../categories/domain/models/category.dart';
 import '../../../categories/domain/repositories/category_repository.dart';
 import '../../domain/models/stock_movement.dart';
 import '../../domain/repositories/inventory_repository.dart';
+import '../../../../core/auth/auth_provider.dart';
+import '../../../employees/domain/models/employee.dart';
 
 class InventoryController extends ChangeNotifier {
   final ProductRepository productRepo;
@@ -88,6 +90,12 @@ class InventoryController extends ChangeNotifier {
     required String reason,
     String? note,
   }) async {
+    if (!AuthProvider.instance.can(Permission.manageInventory)) {
+      errorMessage = 'Permission denied: Cannot manage inventory.';
+      notifyListeners();
+      return false;
+    }
+
     if (quantityChange == 0) {
       errorMessage = 'Quantity change cannot be zero.';
       notifyListeners();

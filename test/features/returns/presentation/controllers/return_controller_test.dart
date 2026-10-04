@@ -1,3 +1,4 @@
+import 'package:nexa_pos/core/auth/auth_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexa_pos/features/returns/presentation/controllers/return_controller.dart';
 import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
@@ -15,6 +16,7 @@ void main() {
     late SaleTransaction testSale;
 
     setUp(() async {
+      AuthProvider.instance.testLoginAdmin();
       salesRepo = MockSalesRepository();
       productRepo = MockProductRepository();
       inventoryRepo = MockInventoryRepository();

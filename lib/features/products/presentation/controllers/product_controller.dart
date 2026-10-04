@@ -5,6 +5,8 @@ import '../../domain/models/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../../categories/domain/models/category.dart';
 import '../../../categories/domain/repositories/category_repository.dart';
+import '../../../../core/auth/auth_provider.dart';
+import '../../../employees/domain/models/employee.dart';
 
 class ProductController extends ChangeNotifier {
   final ProductRepository productRepo;
@@ -75,6 +77,12 @@ class ProductController extends ChangeNotifier {
 
 
   Future<bool> saveProduct(Product product) async {
+    if (!AuthProvider.instance.can(Permission.manageProducts)) {
+      errorMessage = 'Permission denied: Cannot manage products.';
+      notifyListeners();
+      return false;
+    }
+    
     try {
       if (product.id.isEmpty) {
         await productRepo.addProduct(
@@ -101,6 +109,12 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<bool> deleteProduct(String id) async {
+    if (!AuthProvider.instance.can(Permission.manageProducts)) {
+      errorMessage = 'Permission denied: Cannot manage products.';
+      notifyListeners();
+      return false;
+    }
+    
     try {
       await productRepo.deleteProduct(id);
       await loadProducts();

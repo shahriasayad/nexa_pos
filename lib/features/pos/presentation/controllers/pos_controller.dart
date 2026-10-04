@@ -9,6 +9,8 @@ import '../../domain/models/sale_transaction.dart';
 import '../../domain/repositories/sales_repository.dart';
 import '../../../customers/domain/models/customer.dart';
 import '../../../customers/domain/repositories/customer_repository.dart';
+import '../../../../core/auth/auth_provider.dart';
+import '../../../employees/domain/models/employee.dart';
 
 class PosController extends ChangeNotifier {
   final ProductRepository productRepo;
@@ -112,6 +114,11 @@ class PosController extends ChangeNotifier {
   }
 
   Future<bool> checkout(PaymentMethod method, double amountReceived) async {
+    if (!AuthProvider.instance.can(Permission.createSale)) {
+      _setError('Permission denied: Cannot create sales.');
+      return false;
+    }
+
     if (cart.isEmpty) {
       _setError('Cart is empty.');
       return false;

@@ -6,6 +6,8 @@ import '../../../../features/products/domain/repositories/product_repository.dar
 import '../../../../features/inventory/domain/models/stock_movement.dart';
 import '../../../../features/inventory/domain/repositories/inventory_repository.dart';
 import '../../domain/models/return_transaction.dart';
+import '../../../../core/auth/auth_provider.dart';
+import '../../../employees/domain/models/employee.dart';
 
 class ReturnController extends ChangeNotifier {
   final SalesRepository salesRepo;
@@ -47,6 +49,12 @@ class ReturnController extends ChangeNotifier {
   }
 
   Future<bool> submitReturn(SaleTransaction sale) async {
+    if (!AuthProvider.instance.can(Permission.refund)) {
+      errorMessage = 'Permission denied: Cannot process refunds.';
+      notifyListeners();
+      return false;
+    }
+
     if (returnQuantities.values.every((q) => q == 0)) {
       errorMessage = 'Please select at least one item to return.';
       notifyListeners();

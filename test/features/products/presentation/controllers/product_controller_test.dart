@@ -1,3 +1,4 @@
+import 'package:nexa_pos/core/auth/auth_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/features/products/domain/models/product.dart';
@@ -10,6 +11,7 @@ void main() {
     late ProductController controller;
 
     setUp(() {
+      AuthProvider.instance.testLoginAdmin();
       controller = ProductController(
         productRepo: MockProductRepository(),
         categoryRepo: MockCategoryRepository(),
