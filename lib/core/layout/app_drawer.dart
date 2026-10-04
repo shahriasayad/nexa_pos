@@ -9,7 +9,8 @@ class AppDrawer extends StatelessWidget {
     final String currentRoute = ModalRoute.of(context)?.settings.name ?? AppRoutes.dashboard;
 
     return Drawer(
-      child: Column(
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
             decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
