@@ -11,6 +11,8 @@ import 'product_form_screen.dart';
 import 'product_details_screen.dart';
 
 import '../../../../core/layout/app_drawer.dart';
+import 'widgets/product_filter_bar.dart';
+import 'widgets/product_list_tile.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -74,75 +76,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             onPressed: () => _navigateToForm(),
           ),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(110),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search products...',
-                    prefixIcon: Icon(Icons.search),
-                    contentPadding: EdgeInsets.symmetric(vertical: 0),
-                  ),
-                  onChanged: (val) {
-                    _controller.setSearch(val);
-                  },
-                ),
-                const SizedBox(height: 8),
-                ListenableBuilder(
-                  listenable: _controller,
-                  builder: (context, _) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          DropdownButton<String>(
-                            hint: const Text('Category'),
-                            value: _controller.selectedCategoryId,
-                            onChanged: (val) => _controller.setCategory(val),
-                            items: [
-                              const DropdownMenuItem(value: null, child: Text('All Categories')),
-                              ..._controller.categories.map((c) => DropdownMenuItem(
-                                value: c.id,
-                                child: Text(c.name),
-                              )),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          DropdownButton<StockStatus>(
-                            hint: const Text('Stock Status'),
-                            value: _controller.selectedStockStatus,
-                            onChanged: (val) => _controller.setStockStatus(val),
-                            items: [
-                              const DropdownMenuItem(value: null, child: Text('All Stock')),
-                              ...StockStatus.values.map((s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(s.name),
-                              )),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          DropdownButton<bool>(
-                            hint: const Text('Status'),
-                            value: _controller.isActiveFilter,
-                            onChanged: (val) => _controller.setActiveFilter(val),
-                            items: const [
-                              DropdownMenuItem(value: null, child: Text('All Status')),
-                              DropdownMenuItem(value: true, child: Text('Active')),
-                              DropdownMenuItem(value: false, child: Text('Inactive')),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
+        bottom: ProductFilterBar(controller: _controller),
       ),
       body: ListenableBuilder(
         listenable: _controller,
@@ -179,36 +113,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 itemCount: _controller.products.length,
                 itemBuilder: (context, index) {
                   final product = _controller.products[index];
-                  final isLowStock = product.stockStatus != StockStatus.inStock;
-                  return ListTile(
+                  return ProductListTile(
+                    product: product,
                     onTap: () => _navigateToDetails(product),
-                    title: Text(product.name),
-                    subtitle: Text('SKU: ${product.sku} | Price: \$${product.sellingPrice.toStringAsFixed(2)}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isLowStock)
-                          Icon(
-                            product.stockStatus == StockStatus.outOfStock ? Icons.error : Icons.warning,
-                            color: product.stockStatus == StockStatus.outOfStock ? Colors.red : Colors.orange,
-                          ),
-                        const SizedBox(width: 8),
-                        Text('Stock: ${product.stockQuantity}', 
-                          style: TextStyle(
-                            color: product.stockStatus == StockStatus.outOfStock ? Colors.red : null,
-                            fontWeight: isLowStock ? FontWeight.bold : null,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _navigateToForm(product.id),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _controller.deleteProduct(product.id),
-                        ),
-                      ],
-                    ),
+                    onEdit: () => _navigateToForm(product.id),
+                    onDelete: () => _controller.deleteProduct(product.id),
                   );
                 },
               );

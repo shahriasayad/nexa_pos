@@ -5,6 +5,8 @@ import '../../../products/data/repositories/mock_product_repository.dart';
 import '../../../inventory/data/repositories/mock_inventory_repository.dart';
 import '../controllers/purchase_controller.dart';
 import '../../../products/domain/models/product.dart';
+import '../../../../shared/widgets/custom_button.dart';
+import '../../../../shared/widgets/custom_text_field.dart';
 
 class PurchaseFormScreen extends StatefulWidget {
   final PurchaseOrder? purchase;
@@ -123,9 +125,9 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
+                  child: CustomTextField(
                     initialValue: _supplierName,
-                    decoration: const InputDecoration(labelText: 'Supplier Name'),
+                    label: 'Supplier Name',
                     onChanged: (val) => _supplierName = val,
                   ),
                 ),
@@ -158,7 +160,7 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(16),
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -172,16 +174,18 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: CustomButton(
                           onPressed: _saveDraft,
-                          child: const Text('Save as Draft'),
+                          label: 'Save as Draft',
+                          variant: CustomButtonVariant.outline,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: ElevatedButton(
+                        child: CustomButton(
                           onPressed: _placeOrder,
-                          child: const Text('Place Order'),
+                          label: 'Place Order',
+                          variant: CustomButtonVariant.primary,
                         ),
                       ),
                     ],
