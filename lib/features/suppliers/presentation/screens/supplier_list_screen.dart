@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../data/repositories/mock_supplier_repository.dart';
 import '../controllers/supplier_controller.dart';
@@ -43,18 +43,16 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Suppliers'),
-        actions: [
+    return AppShell(
+      
+      title: 'Suppliers',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _openSupplierForm(),
           ),
         ],
-      ),
-      body: Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),

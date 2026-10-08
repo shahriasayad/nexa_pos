@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
+import 'package:nexa_pos/shared/widgets/status_badge.dart';
 import '../../../../core/state/view_state.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
@@ -10,7 +15,7 @@ import '../../data/repositories/mock_inventory_repository.dart';
 import '../controllers/inventory_controller.dart';
 import 'inventory_details_screen.dart';
 
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({super.key});
@@ -53,70 +58,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Inventory'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(110),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search inventory...',
-                    prefixIcon: Icon(Icons.search),
-                    contentPadding: EdgeInsets.symmetric(vertical: 0),
-                  ),
-                  onChanged: (val) {
-                    _controller.setSearch(val);
-                  },
-                ),
-                const SizedBox(height: 8),
-                ListenableBuilder(
-                  listenable: _controller,
-                  builder: (context, _) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          DropdownButton<String>(
-                            hint: const Text('Category'),
-                            value: _controller.selectedCategoryId,
-                            onChanged: (val) => _controller.setCategory(val),
-                            items: [
-                              const DropdownMenuItem(value: null, child: Text('All Categories')),
-                              ..._controller.categories.map((c) => DropdownMenuItem(
-                                value: c.id,
-                                child: Text(c.name),
-                              )),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          DropdownButton<StockStatus>(
-                            hint: const Text('Stock Status'),
-                            value: _controller.selectedStockStatus,
-                            onChanged: (val) => _controller.setStockStatus(val),
-                            items: [
-                              const DropdownMenuItem(value: null, child: Text('All Stock')),
-                              ...StockStatus.values.map((s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(s.name),
-                              )),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: ListenableBuilder(
+    return AppShell(
+      title: 'Inventory',
+      child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           if (_controller.errorMessage != null) {
@@ -140,51 +84,190 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 onRetry: _controller.loadInventory,
               );
             case ViewState.empty:
-              return EmptyStateView(
+              return const EmptyStateView(
                 message: 'No inventory found',
                 icon: Icons.inventory_2_outlined,
               );
             case ViewState.success:
-              return ListView.builder(
-                itemCount: _controller.products.length,
-                itemBuilder: (context, index) {
-                  final product = _controller.products[index];
-                  final isLowStock = product.stockStatus != StockStatus.inStock;
-                  final lastMove = _controller.lastMovements[product.id];
-                  return ListTile(
-                    onTap: () => _navigateToDetails(product),
-                    title: Text(product.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('SKU: ${product.sku}'),
-                        if (lastMove != null)
-                          Text('Last: ${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isLowStock)
-                          Icon(
-                            product.stockStatus == StockStatus.outOfStock ? Icons.error : Icons.warning,
-                            color: product.stockStatus == StockStatus.outOfStock ? Colors.red : Colors.orange,
-                          ),
-                        const SizedBox(width: 8),
-                        Text('Stock: ${product.stockQuantity}', 
-                          style: TextStyle(
-                            color: product.stockStatus == StockStatus.outOfStock ? Colors.red : null,
-                            fontWeight: isLowStock ? FontWeight.bold : null,
-                          ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+                child: CustomCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      if (!ResponsiveLayout.isMobile(context)) _buildTableHeader(),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: _controller.products.length,
+                          itemBuilder: (context, index) {
+                            final product = _controller.products[index];
+                            return _buildInventoryRow(product);
+                          },
                         ),
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    ],
+                  ),
+                ),
               );
           }
         },
       ),
+    );
+  }
+
+  Widget _buildTableHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 3, child: _HeaderCell('Product')),
+          Expanded(flex: 1, child: _HeaderCell('Current Stock')),
+          Expanded(flex: 1, child: _HeaderCell('Min Stock')),
+          Expanded(flex: 1, child: _HeaderCell('Status')),
+          Expanded(flex: 2, child: _HeaderCell('Last Movement')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInventoryRow(Product product) {
+    final lastMove = _controller.lastMovements[product.id];
+    final isMobile = ResponsiveLayout.isMobile(context);
+    
+    if (isMobile) {
+      return InkWell(
+        onTap: () => _navigateToDetails(product),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+          ),
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(product.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+              Text('SKU: ${product.sku}', style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStockIndicator(product),
+                  if (lastMove != null)
+                    Text(
+                      'Last: ${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: () => _navigateToDetails(product),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(product.sku, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                '${product.stockQuantity}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                '${product.minimumStock}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: _buildStockIndicator(product),
+            ),
+            Expanded(
+              flex: 2,
+              child: lastMove != null
+                  ? Text(
+                      '${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    )
+                  : Text('No movements', style: Theme.of(context).textTheme.bodySmall),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStockIndicator(Product product) {
+    BadgeType badgeType;
+    String label;
+    
+    switch (product.stockStatus) {
+      case StockStatus.inStock:
+        badgeType = BadgeType.success;
+        label = 'In Stock';
+        break;
+      case StockStatus.lowStock:
+        badgeType = BadgeType.warning;
+        label = 'Low Stock';
+        break;
+      case StockStatus.outOfStock:
+        badgeType = BadgeType.danger;
+        label = 'Out of Stock';
+        break;
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: StatusBadge(label: label, type: badgeType),
+    );
+  }
+}
+
+class _HeaderCell extends StatelessWidget {
+  final String text;
+  const _HeaderCell(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
     );
   }
 }

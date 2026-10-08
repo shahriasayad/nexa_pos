@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/section_header.dart';
 import '../../domain/models/product_summary.dart';
 
 class TopProductsList extends StatelessWidget {
@@ -15,28 +19,19 @@ class TopProductsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
+    return CustomCard(
+      padding: EdgeInsets.zero,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: SectionHeader(title: title),
           ),
           const Divider(height: 1),
           if (products.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(AppSpacing.xl),
               child: Center(child: Text('No products to display')),
             )
           else
@@ -47,18 +42,57 @@ class TopProductsList extends StatelessWidget {
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final product = products[index];
-                return ListTile(
-                  title: Text(product.name),
-                  subtitle: Text(
-                    isLowStock
-                        ? 'Stock: ${product.stockQuantity}'
-                        : 'Sold: ${product.soldQuantity}',
-                    style: TextStyle(
-                      color: isLowStock ? Colors.orange : null,
-                      fontWeight: isLowStock ? FontWeight.bold : null,
-                    ),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
-                  trailing: Text('\$${product.price.toStringAsFixed(2)}'),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Theme.of(context).dividerColor),
+                        ),
+                        child: const Icon(Icons.inventory_2_outlined, size: 20),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.name,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              isLowStock
+                                  ? 'Stock: ${product.stockQuantity}'
+                                  : 'Sold: ${product.soldQuantity}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: isLowStock ? AppColors.warning : AppColors.textSecondary,
+                                fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Text(
+                        '\$${product.price.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

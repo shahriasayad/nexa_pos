@@ -8,7 +8,7 @@ import '../controllers/category_controller.dart';
 import '../../data/repositories/mock_category_repository.dart';
 import '../../../products/data/repositories/mock_product_repository.dart';
 
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 
 class CategoryListScreen extends StatefulWidget {
   const CategoryListScreen({super.key});
@@ -48,18 +48,16 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Categories'),
-        actions: [
+    return AppShell(
+      
+      title: 'Categories',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showFormDialog(),
           ),
         ],
-      ),
-      body: ListenableBuilder(
+      child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           if (_controller.errorMessage != null) {

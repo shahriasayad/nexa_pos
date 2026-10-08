@@ -7,7 +7,7 @@ import '../../domain/models/sale_transaction.dart';
 import '../../data/repositories/mock_sales_repository.dart';
 import '../controllers/transaction_history_controller.dart';
 import 'transaction_details_screen.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -104,11 +104,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Transaction History'),
-        actions: [
+    return AppShell(
+      
+      title: 'Transaction History',
+      actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _openFilterDialog,
@@ -118,8 +117,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             onPressed: _controller.loadTransactions,
           )
         ],
-      ),
-      body: Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),

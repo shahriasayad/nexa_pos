@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/shared/widgets/custom_button.dart';
+import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/custom_text_field.dart';
+import 'package:nexa_pos/shared/widgets/section_header.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../domain/models/product.dart';
 import '../controllers/product_controller.dart';
 
@@ -39,10 +46,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _barcodeController = TextEditingController(text: _existingProduct?.barcode ?? '');
     _purchasePriceController = TextEditingController(text: _existingProduct?.purchasePrice.toString() ?? '');
     _sellingPriceController = TextEditingController(text: _existingProduct?.sellingPrice.toString() ?? '');
-    _stockController = TextEditingController(text: _existingProduct?.stockQuantity.toString() ?? '0');
-    _minStockController = TextEditingController(text: _existingProduct?.minimumStock.toString() ?? '0');
+    _stockController = TextEditingController(text: _existingProduct?.stockQuantity.toString() ?? '');
+    _minStockController = TextEditingController(text: _existingProduct?.minimumStock.toString() ?? '');
     
-    _categoryId = _existingProduct?.categoryId ?? (widget.controller.categories.isNotEmpty ? widget.controller.categories.first.id : null);
+    _categoryId = _existingProduct?.categoryId;
     _isActive = _existingProduct?.isActive ?? true;
   }
 
@@ -59,143 +66,181 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   void _submit() async {
-    if (_formKey.currentState!.validate() && _categoryId != null) {
+    if (_formKey.currentState!.validate()) {
       final product = Product(
-        id: _existingProduct?.id ?? '',
-        name: _nameController.text.trim(),
-        sku: _skuController.text.trim(),
-        barcode: _barcodeController.text.trim(),
+        id: _existingProduct?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        name: _nameController.text,
+        sku: _skuController.text,
+        barcode: _barcodeController.text,
         categoryId: _categoryId!,
-        purchasePrice: double.tryParse(_purchasePriceController.text) ?? 0,
-        sellingPrice: double.tryParse(_sellingPriceController.text) ?? 0,
-        stockQuantity: int.tryParse(_stockController.text) ?? 0,
-        minimumStock: int.tryParse(_minStockController.text) ?? 0,
-        isActive: _isActive,
-        createdAt: _existingProduct?.createdAt ?? DateTime.now(),
-        updatedAt: DateTime.now(),
+        purchasePrice: double.parse(_purchasePriceController.text),
+        sellingPrice: double.parse(_sellingPriceController.text),
+        stockQuantity: int.parse(_stockController.text),
+        minimumStock: int.parse(_minStockController.text),
+        isActive: _isActive, createdAt: _existingProduct?.createdAt ?? DateTime.now(), updatedAt: DateTime.now(),
       );
 
-      final success = await widget.controller.saveProduct(product);
-      if (success && mounted) {
-        Navigator.pop(context);
+      if (_existingProduct != null) {
+        await widget.controller.saveProduct(product);
+      } else {
+        await widget.controller.saveProduct(product);
       }
-    } else if (_categoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a category')));
+      
+      if (mounted) Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_existingProduct == null ? 'New Product' : 'Edit Product'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: _submit,
+    final title = _existingProduct != null ? 'Edit Product' : 'Add Product';
+    
+    return AppShell(
+      title: title,
+      actions: [
+        CustomButton(
+          label: 'Save Product',
+          onPressed: _submit,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+        ),
+      ],
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProductInformation(),
+                const SizedBox(height: AppSpacing.xl),
+                _buildPricing(),
+                const SizedBox(height: AppSpacing.xl),
+                _buildInventory(),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+
+  Widget _buildProductInformation() {
+    return CustomCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Product Information'),
+          CustomTextField(
+            label: 'Product Name *',
+            controller: _nameController,
+            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name *'),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+              Expanded(
+                child: CustomTextField(
+                  label: 'SKU *',
+                  controller: _skuController,
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _skuController,
-                      decoration: const InputDecoration(labelText: 'SKU *'),
-                      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _barcodeController,
-                      decoration: const InputDecoration(labelText: 'Barcode'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Category *'),
-                value: _categoryId,
-                items: widget.controller.categories.map((c) => DropdownMenuItem(
-                  value: c.id,
-                  child: Text(c.name),
-                )).toList(),
-                onChanged: (val) => setState(() => _categoryId = val),
-                validator: (v) => v == null ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _purchasePriceController,
-                      decoration: const InputDecoration(labelText: 'Purchase Price *'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _sellingPriceController,
-                      decoration: const InputDecoration(labelText: 'Selling Price *'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _stockController,
-                      decoration: const InputDecoration(labelText: 'Stock Qty *'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _minStockController,
-                      decoration: const InputDecoration(labelText: 'Min Stock *'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Active'),
-                value: _isActive,
-                onChanged: (v) => setState(() => _isActive = v),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _submit,
-                child: const Text('Save Product'),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: CustomTextField(
+                  label: 'Barcode',
+                  controller: _barcodeController,
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.md),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'Category *'),
+            value: _categoryId,
+            items: widget.controller.categories.map((c) => DropdownMenuItem(
+              value: c.id,
+              child: Text(c.name),
+            )).toList(),
+            onChanged: (val) => setState(() => _categoryId = val),
+            validator: (v) => v == null ? 'Required' : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPricing() {
+    return CustomCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Pricing'),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  label: 'Purchase Price *',
+                  controller: _purchasePriceController,
+                  keyboardType: TextInputType.number,
+                  prefixIcon: const Icon(Icons.attach_money),
+                  validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: CustomTextField(
+                  label: 'Selling Price *',
+                  controller: _sellingPriceController,
+                  keyboardType: TextInputType.number,
+                  prefixIcon: const Icon(Icons.attach_money),
+                  validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInventory() {
+    return CustomCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionHeader(title: 'Inventory & Status'),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  label: 'Initial Stock *',
+                  controller: _stockController,
+                  keyboardType: TextInputType.number,
+                  validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: CustomTextField(
+                  label: 'Minimum Stock *',
+                  controller: _minStockController,
+                  keyboardType: TextInputType.number,
+                  validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SwitchListTile(
+            title: const Text('Product is Active'),
+            subtitle: const Text('Inactive products are hidden from POS checkout'),
+            value: _isActive,
+            onChanged: (v) => setState(() => _isActive = v),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ],
       ),
     );
   }

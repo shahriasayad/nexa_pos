@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/employee.dart';
 import '../../data/repositories/mock_employee_repository.dart';
@@ -43,18 +43,16 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Employees'),
-        actions: [
+    return AppShell(
+      
+      title: 'Employees',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _openEmployeeForm(),
           ),
         ],
-      ),
-      body: Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),

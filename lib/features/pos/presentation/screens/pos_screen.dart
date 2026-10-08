@@ -8,7 +8,7 @@ import '../controllers/pos_controller.dart';
 import 'checkout_dialog.dart';
 import 'receipt_dialog.dart';
 import 'customer_selection_dialog.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../../customers/domain/models/customer.dart';
 import 'widgets/product_list_panel.dart';
 import 'widgets/cart_panel.dart';
@@ -72,12 +72,11 @@ class _PosScreenState extends State<PosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Point of Sale'),
-      ),
-      body: ListenableBuilder(
+    return AppShell(
+      
+      title: 'Point of Sale',
+      
+      child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           if (_controller.errorMessage != null) {

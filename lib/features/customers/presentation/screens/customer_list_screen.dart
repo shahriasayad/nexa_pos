@@ -4,7 +4,7 @@ import '../../domain/models/customer.dart';
 import '../../data/repositories/mock_customer_repository.dart';
 import '../controllers/customer_controller.dart';
 import 'customer_form_screen.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 
 class CustomerListScreen extends StatefulWidget {
   const CustomerListScreen({super.key});
@@ -46,18 +46,16 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Customers'),
-        actions: [
+    return AppShell(
+      
+      title: 'Customers',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _openCustomerForm(),
           )
         ],
-      ),
-      body: Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),

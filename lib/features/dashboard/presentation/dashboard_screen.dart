@@ -13,7 +13,7 @@ import 'widgets/sales_chart.dart';
 import 'widgets/recent_transactions_list.dart';
 import 'widgets/top_products_list.dart';
 
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../expenses/data/repositories/mock_expense_repository.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -46,44 +46,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Nexa POS - Dashboard'),
-        actions: [
-          ListenableBuilder(
-            listenable: _controller,
-            builder: (context, _) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: DropdownButton<DashboardFilter>(
-                  value: _controller.currentFilter,
-                  onChanged: (DashboardFilter? newValue) {
-                    if (newValue != null) {
-                      _controller.setFilter(newValue);
-                    }
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                      value: DashboardFilter.today,
-                      child: Text('Today'),
-                    ),
-                    DropdownMenuItem(
-                      value: DashboardFilter.thisWeek,
-                      child: Text('This Week'),
-                    ),
-                    DropdownMenuItem(
-                      value: DashboardFilter.thisMonth,
-                      child: Text('This Month'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: ListenableBuilder(
+    return AppShell(
+      title: 'Dashboard',
+      actions: [
+        ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: DropdownButton<DashboardFilter>(
+                value: _controller.currentFilter,
+                onChanged: (DashboardFilter? newValue) {
+                  if (newValue != null) {
+                    _controller.setFilter(newValue);
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: DashboardFilter.today,
+                    child: Text('Today'),
+                  ),
+                  DropdownMenuItem(
+                    value: DashboardFilter.thisWeek,
+                    child: Text('This Week'),
+                  ),
+                  DropdownMenuItem(
+                    value: DashboardFilter.thisMonth,
+                    child: Text('This Month'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+      child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           switch (_controller.state) {

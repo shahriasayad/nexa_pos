@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/section_header.dart';
+import 'package:nexa_pos/shared/widgets/status_badge.dart';
 import '../../domain/models/transaction_summary.dart';
 
 class RecentTransactionsList extends StatelessWidget {
@@ -8,28 +13,21 @@ class RecentTransactionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
+    return CustomCard(
+      padding: EdgeInsets.zero,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Recent Transactions',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: SectionHeader(
+              title: 'Recent Transactions',
             ),
           ),
           const Divider(height: 1),
           if (transactions.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(AppSpacing.xl),
               child: Center(child: Text('No recent transactions')),
             )
           else
@@ -40,17 +38,60 @@ class RecentTransactionsList extends StatelessWidget {
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final trx = transactions[index];
-                return ListTile(
-                  title: Text(trx.id),
-                  subtitle: Text(
-                    '${trx.date.hour}:${trx.date.minute.toString().padLeft(2, '0')} - ${trx.status}',
+                final isRefund = trx.status.toLowerCase() == 'refunded';
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
-                  trailing: Text(
-                    '\$${trx.total.toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: trx.status == 'Refunded' ? Colors.red : null,
-                          fontWeight: FontWeight.bold,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Theme.of(context).dividerColor),
                         ),
+                        child: Icon(
+                          isRefund ? Icons.keyboard_return : Icons.receipt_long,
+                          size: 20,
+                          color: isRefund ? AppColors.danger : AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              trx.id,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            Text(
+                              '${trx.date.hour}:${trx.date.minute.toString().padLeft(2, '0')}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      StatusBadge(
+                        label: trx.status,
+                        type: isRefund ? BadgeType.danger : BadgeType.success,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Text(
+                        '\$${trx.total.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: isRefund ? AppColors.danger : null,
+                            ),
+                      ),
+                    ],
                   ),
                 );
               },

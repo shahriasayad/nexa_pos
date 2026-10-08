@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/purchase_order.dart';
 import '../../data/repositories/mock_purchase_repository.dart';
@@ -71,18 +71,16 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Purchases'),
-        actions: [
+    return AppShell(
+      
+      title: 'Purchases',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _openPurchaseForm(),
           ),
         ],
-      ),
-      body: ListenableBuilder(
+      child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           if (_controller.state == ViewState.loading) {

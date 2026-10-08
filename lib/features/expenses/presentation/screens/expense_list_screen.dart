@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/layout/app_drawer.dart';
+import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/expense.dart';
 import '../../data/repositories/mock_expense_repository.dart';
@@ -61,18 +61,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Expenses'),
-        actions: [
+    return AppShell(
+      
+      title: 'Expenses',
+      actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _openExpenseForm(),
           ),
         ],
-      ),
-      body: Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
