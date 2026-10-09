@@ -4,8 +4,20 @@ import '../../domain/repositories/category_repository.dart';
 
 class MockCategoryRepository implements CategoryRepository {
   final List<Category> _categories = [
-    Category(id: '1', name: 'Electronics', description: 'Gadgets', createdAt: DateTime.now(), updatedAt: DateTime.now()),
-    Category(id: '2', name: 'Accessories', description: 'Peripherals', createdAt: DateTime.now(), updatedAt: DateTime.now()),
+    Category(
+      id: '1',
+      name: 'Electronics',
+      description: 'Gadgets',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    Category(
+      id: '2',
+      name: 'Accessories',
+      description: 'Peripherals',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
   ];
 
   @override
@@ -54,6 +66,8 @@ class MockCategoryRepository implements CategoryRepository {
 
   @override
   Future<bool> checkNameExists(String name, {String? excludeId}) async {
-    return _categories.any((c) => c.name.toLowerCase() == name.toLowerCase() && c.id != excludeId);
+    return _categories.any(
+      (c) => c.name.toLowerCase() == name.toLowerCase() && c.id != excludeId,
+    );
   }
 }

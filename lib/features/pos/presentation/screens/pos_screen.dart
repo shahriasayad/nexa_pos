@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../shared/widgets/responsive_layout.dart';
 import '../../../products/data/repositories/mock_product_repository.dart';
 import '../../../inventory/data/repositories/mock_inventory_repository.dart';
@@ -73,9 +74,8 @@ class _PosScreenState extends State<PosScreen> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Point of Sale',
-      
+
       child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -113,10 +113,7 @@ class _PosScreenState extends State<PosScreen> {
           ),
           Expanded(
             child: TabBarView(
-              children: [
-                _buildProductList(),
-                _buildCartPanel(),
-              ],
+              children: [_buildProductList(), _buildCartPanel()],
             ),
           ),
         ],
@@ -127,15 +124,9 @@ class _PosScreenState extends State<PosScreen> {
   Widget _buildDesktopLayout() {
     return Row(
       children: [
-        Expanded(
-          flex: 2,
-          child: _buildProductList(),
-        ),
+        Expanded(flex: 2, child: _buildProductList()),
         const VerticalDivider(width: 1),
-        Expanded(
-          flex: 1,
-          child: _buildCartPanel(),
-        ),
+        Expanded(flex: 1, child: _buildCartPanel()),
       ],
     );
   }

@@ -25,12 +25,12 @@ class MockSupplierRepository implements SupplierRepository {
   Future<List<Supplier>> getSuppliers({String? query}) async {
     await Future.delayed(const Duration(milliseconds: 300));
     if (query == null || query.isEmpty) return List.unmodifiable(_suppliers);
-    
+
     final lowerQuery = query.toLowerCase();
     return _suppliers.where((s) {
       return s.name.toLowerCase().contains(lowerQuery) ||
-             (s.contactName?.toLowerCase().contains(lowerQuery) ?? false) ||
-             (s.phone?.contains(lowerQuery) ?? false);
+          (s.contactName?.toLowerCase().contains(lowerQuery) ?? false) ||
+          (s.phone?.contains(lowerQuery) ?? false);
     }).toList();
   }
 

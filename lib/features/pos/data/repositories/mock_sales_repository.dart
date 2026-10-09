@@ -22,11 +22,13 @@ class MockSalesRepository implements SalesRepository {
     var filtered = _sales.where((s) {
       if (startDate != null && s.timestamp.isBefore(startDate)) return false;
       if (endDate != null && s.timestamp.isAfter(endDate)) return false;
-      if (paymentMethod != null && s.paymentMethod != paymentMethod) return false;
+      if (paymentMethod != null && s.paymentMethod != paymentMethod) {
+        return false;
+      }
       if (status != null && s.status != status) return false;
       return true;
     }).toList();
-    
+
     filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return filtered;
   }
@@ -46,12 +48,16 @@ class MockSalesRepository implements SalesRepository {
     await Future.delayed(const Duration(milliseconds: 200));
     final saleIndex = _sales.indexWhere((s) => s.id == saleId);
     if (saleIndex == -1) throw Exception('Sale not found');
-    
+
     final sale = _sales[saleIndex];
     final updatedItems = sale.items.map((item) {
-      final returned = returnTx.items.where((r) => r.productId == item.productId).firstOrNull;
+      final returned = returnTx.items
+          .where((r) => r.productId == item.productId)
+          .firstOrNull;
       if (returned != null) {
-        return item.copyWith(returnedQuantity: item.returnedQuantity + returned.quantity);
+        return item.copyWith(
+          returnedQuantity: item.returnedQuantity + returned.quantity,
+        );
       }
       return item;
     }).toList();

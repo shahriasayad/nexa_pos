@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/supplier.dart';
 import '../../domain/repositories/supplier_repository.dart';
@@ -10,7 +11,7 @@ class SupplierController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Supplier> suppliers = [];
   String? currentQuery;
 

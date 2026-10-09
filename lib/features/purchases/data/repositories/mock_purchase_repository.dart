@@ -5,7 +5,10 @@ class MockPurchaseRepository implements PurchaseRepository {
   final List<PurchaseOrder> _purchases = [];
 
   @override
-  Future<List<PurchaseOrder>> getPurchases({String? supplierId, PurchaseStatus? status}) async {
+  Future<List<PurchaseOrder>> getPurchases({
+    String? supplierId,
+    PurchaseStatus? status,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     var results = _purchases.toList();
     if (supplierId != null) {

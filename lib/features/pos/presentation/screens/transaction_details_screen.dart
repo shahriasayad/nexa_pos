@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+
 import '../../../../features/pos/domain/models/sale_transaction.dart';
 import '../../../../features/pos/data/repositories/mock_sales_repository.dart';
 import '../../../../features/returns/presentation/screens/return_dialog.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class TransactionDetailsScreen extends StatefulWidget {
   final String transactionId;
   final MockSalesRepository salesRepo;
 
   const TransactionDetailsScreen({
-    super.key, 
+    super.key,
     required this.transactionId,
     required this.salesRepo,
   });
 
   @override
-  State<TransactionDetailsScreen> createState() => _TransactionDetailsScreenState();
+  State<TransactionDetailsScreen> createState() =>
+      _TransactionDetailsScreenState();
 }
 
 class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
@@ -38,7 +42,7 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
 
   void _showReturnDialog() async {
     if (_sale == null) return;
-    
+
     // Check if fully returned
     bool fullyReturned = true;
     for (var item in _sale!.items) {
@@ -47,9 +51,11 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
         break;
       }
     }
-    
+
     if (fullyReturned) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transaction is fully returned.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transaction is fully returned.')),
+      );
       return;
     }
 
@@ -68,9 +74,9 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Transaction Details')),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : _sale == null
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _sale == null
           ? const Center(child: Text('Transaction not found'))
           : _buildDetails(),
     );
@@ -83,7 +89,10 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('ID: ${sale.id}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'ID: ${sale.id}',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text('Date: ${sale.timestamp.toString().split('.')[0]}'),
           Text('Status: ${sale.status.name.toUpperCase()}'),
           const Divider(),
@@ -91,14 +100,25 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
           ...sale.items.map((item) {
             return ListTile(
               title: Text(item.productName),
-              subtitle: Text('${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}'),
+              subtitle: Text(
+                '${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
+              ),
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('\$${item.lineTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    '\$${item.lineTotal.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   if (item.returnedQuantity > 0)
-                    Text('Returned: ${item.returnedQuantity}', style: const TextStyle(color: Colors.red, fontSize: 12)),
+                    Text(
+                      'Returned: ${item.returnedQuantity}',
+                      style: const TextStyle(
+                        color: AppColors.danger,
+                        fontSize: 12,
+                      ),
+                    ),
                 ],
               ),
             );
@@ -107,8 +127,17 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              Text('\$${sale.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              const Text(
+                'Total:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Text(
+                '\$${sale.total.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ],
           ),
           Row(
@@ -120,10 +149,16 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
           ),
           if (sale.returns.isNotEmpty) ...[
             const Divider(),
-            const Text('Returns:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Returns:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             ...sale.returns.map((r) {
               return ListTile(
-                leading: const Icon(Icons.assignment_return, color: Colors.red),
+                leading: const Icon(
+                  Icons.assignment_return,
+                  color: AppColors.danger,
+                ),
                 title: Text('Return: ${r.id}'),
                 subtitle: Text('Refund: \$${r.totalRefund.toStringAsFixed(2)}'),
               );
@@ -135,8 +170,13 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
             child: ElevatedButton.icon(
               icon: const Icon(Icons.keyboard_return),
               label: const Text('Issue Return / Refund'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-              onPressed: sale.status == SaleStatus.refunded ? null : _showReturnDialog,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.orange,
+                foregroundColor: AppColors.white,
+              ),
+              onPressed: sale.status == SaleStatus.refunded
+                  ? null
+                  : _showReturnDialog,
             ),
           ),
         ],

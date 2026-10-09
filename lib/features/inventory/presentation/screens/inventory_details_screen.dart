@@ -5,6 +5,7 @@ import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../../products/domain/models/product.dart';
 import '../../domain/models/stock_movement.dart';
@@ -63,7 +64,10 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
           label: 'Adjust Stock',
           icon: Icons.edit_note,
           onPressed: _showAdjustStockDialog,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 8,
+          ),
           variant: CustomButtonVariant.outline,
         ),
       ],
@@ -85,15 +89,20 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError) {
-                      return const Center(child: Text('Failed to load history'));
+                      return const Center(
+                        child: Text('Failed to load history'),
+                      );
                     }
                     final movements = snapshot.data ?? [];
                     if (movements.isEmpty) {
-                      return const Center(child: Text('No stock movements found.'));
+                      return const Center(
+                        child: Text('No stock movements found.'),
+                      );
                     }
                     return ListView.separated(
                       itemCount: movements.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final m = movements[index];
                         final isPositive = m.quantityChange > 0;
@@ -110,12 +119,18 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Theme.of(context).dividerColor),
+                                  border: Border.all(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
                                 ),
                                 child: Icon(
-                                  isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                                  isPositive
+                                      ? Icons.arrow_upward
+                                      : Icons.arrow_downward,
                                   size: 20,
-                                  color: isPositive ? AppColors.success : AppColors.danger,
+                                  color: isPositive
+                                      ? AppColors.success
+                                      : AppColors.danger,
                                 ),
                               ),
                               const SizedBox(width: AppSpacing.md),
@@ -125,20 +140,29 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                                   children: [
                                     Text(
                                       '${m.type.name.toUpperCase()} - ${m.reason}',
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${m.timestamp.toString().split('.')[0]}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      m.timestamp.toString().split('.')[0],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall,
                                     ),
-                                    if (m.note != null && m.note!.isNotEmpty) ...[
+                                    if (m.note != null &&
+                                        m.note!.isNotEmpty) ...[
                                       const SizedBox(height: 2),
                                       Text(
                                         'Note: ${m.note}',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
                                               fontStyle: FontStyle.italic,
                                             ),
                                       ),
@@ -149,9 +173,12 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                               const SizedBox(width: AppSpacing.md),
                               Text(
                                 '${isPositive ? '+' : ''}${m.quantityChange}',
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: isPositive ? AppColors.success : AppColors.danger,
+                                      color: isPositive
+                                          ? AppColors.success
+                                          : AppColors.danger,
                                     ),
                               ),
                             ],
@@ -199,16 +226,14 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                 children: [
                   Text(
                     widget.product.name,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     'SKU: ${widget.product.sku}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -221,8 +246,16 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMetric('Current Stock', '${widget.product.stockQuantity}', context),
-              _buildMetric('Minimum Stock', '${widget.product.minimumStock}', context),
+              _buildMetric(
+                'Current Stock',
+                '${widget.product.stockQuantity}',
+                context,
+              ),
+              _buildMetric(
+                'Minimum Stock',
+                '${widget.product.minimumStock}',
+                context,
+              ),
               _buildMetric('Unit', widget.product.unit, context),
             ],
           ),
@@ -236,16 +269,14 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+          style: Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );

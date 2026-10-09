@@ -32,10 +32,14 @@ class MockProductRepository implements ProductRepository {
   ];
 
   @override
-  Future<List<Product>> getProducts({String? search, String? categoryId}) async {
+  Future<List<Product>> getProducts({
+    String? search,
+    String? categoryId,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return _products.where((p) {
-      bool matchesSearch = search == null || 
+      bool matchesSearch =
+          search == null ||
           p.name.toLowerCase().contains(search.toLowerCase()) ||
           p.sku.toLowerCase().contains(search.toLowerCase());
       bool matchesCategory = categoryId == null || p.categoryId == categoryId;
@@ -59,7 +63,9 @@ class MockProductRepository implements ProductRepository {
     if (await checkSkuExists(product.sku)) {
       throw const BusinessFailure('SKU already exists.');
     }
-    if (product.barcode != null && product.barcode!.isNotEmpty && await checkBarcodeExists(product.barcode!)) {
+    if (product.barcode != null &&
+        product.barcode!.isNotEmpty &&
+        await checkBarcodeExists(product.barcode!)) {
       throw const BusinessFailure('Barcode already exists.');
     }
     _products.add(product);
@@ -72,7 +78,9 @@ class MockProductRepository implements ProductRepository {
     if (await checkSkuExists(product.sku, excludeId: product.id)) {
       throw const BusinessFailure('SKU already exists.');
     }
-    if (product.barcode != null && product.barcode!.isNotEmpty && await checkBarcodeExists(product.barcode!, excludeId: product.id)) {
+    if (product.barcode != null &&
+        product.barcode!.isNotEmpty &&
+        await checkBarcodeExists(product.barcode!, excludeId: product.id)) {
       throw const BusinessFailure('Barcode already exists.');
     }
     final index = _products.indexWhere((p) => p.id == product.id);
@@ -89,7 +97,9 @@ class MockProductRepository implements ProductRepository {
 
   @override
   Future<bool> checkSkuExists(String sku, {String? excludeId}) async {
-    return _products.any((p) => p.sku.toLowerCase() == sku.toLowerCase() && p.id != excludeId);
+    return _products.any(
+      (p) => p.sku.toLowerCase() == sku.toLowerCase() && p.id != excludeId,
+    );
   }
 
   @override

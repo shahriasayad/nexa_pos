@@ -1,4 +1,5 @@
 enum PaymentMethod { cash, card, other }
+
 enum SaleStatus { completed, refunded, cancelled }
 
 class SaleItem {
@@ -19,7 +20,7 @@ class SaleItem {
     required this.lineTotal,
     this.returnedQuantity = 0,
   });
-  
+
   SaleItem copyWith({int? returnedQuantity}) {
     return SaleItem(
       productId: productId,

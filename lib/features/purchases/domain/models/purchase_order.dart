@@ -1,9 +1,4 @@
-enum PurchaseStatus {
-  draft,
-  ordered,
-  received,
-  cancelled
-}
+enum PurchaseStatus { draft, ordered, received, cancelled }
 
 class PurchaseItem {
   final String productId;

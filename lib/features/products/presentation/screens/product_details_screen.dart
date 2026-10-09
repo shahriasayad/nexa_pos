@@ -5,6 +5,7 @@ import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../domain/models/product.dart';
 import 'product_form_screen.dart';
@@ -43,7 +44,10 @@ class ProductDetailsScreen extends StatelessWidget {
               }
             });
           },
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 8,
+          ),
           variant: CustomButtonVariant.outline,
         ),
       ],
@@ -92,23 +96,23 @@ class ProductDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   product.name,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
                   children: [
                     Text(
                       'SKU: ${product.sku}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: AppColors.textSecondary),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     StatusBadge(
                       label: product.isActive ? 'Active' : 'Inactive',
-                      type: product.isActive ? BadgeType.success : BadgeType.neutral,
+                      type: product.isActive
+                          ? BadgeType.success
+                          : BadgeType.neutral,
                     ),
                   ],
                 ),
@@ -126,7 +130,11 @@ class ProductDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(title: 'Inventory & Details'),
-          _buildRow(context, 'Barcode', product.barcode?.isEmpty ?? true ? 'N/A' : product.barcode!),
+          _buildRow(
+            context,
+            'Barcode',
+            product.barcode?.isEmpty ?? true ? 'N/A' : product.barcode!,
+          ),
           _buildRow(context, 'Category', product.categoryId),
           const Divider(),
           _buildRow(
@@ -136,11 +144,19 @@ class ProductDetailsScreen extends StatelessWidget {
             valueColor: product.stockStatus == StockStatus.outOfStock
                 ? AppColors.danger
                 : product.stockStatus == StockStatus.lowStock
-                    ? AppColors.warning
-                    : AppColors.success,
+                ? AppColors.warning
+                : AppColors.success,
           ),
-          _buildRow(context, 'Stock Quantity', '${product.stockQuantity} ${product.unit}'),
-          _buildRow(context, 'Minimum Stock', '${product.minimumStock} ${product.unit}'),
+          _buildRow(
+            context,
+            'Stock Quantity',
+            '${product.stockQuantity} ${product.unit}',
+          ),
+          _buildRow(
+            context,
+            'Minimum Stock',
+            '${product.minimumStock} ${product.unit}',
+          ),
         ],
       ),
     );
@@ -152,8 +168,16 @@ class ProductDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(title: 'Pricing'),
-          _buildRow(context, 'Selling Price', '\$${product.sellingPrice.toStringAsFixed(2)}'),
-          _buildRow(context, 'Purchase Price', '\$${product.purchasePrice.toStringAsFixed(2)}'),
+          _buildRow(
+            context,
+            'Selling Price',
+            '\$${product.sellingPrice.toStringAsFixed(2)}',
+          ),
+          _buildRow(
+            context,
+            'Purchase Price',
+            '\$${product.purchasePrice.toStringAsFixed(2)}',
+          ),
           const Divider(),
           _buildRow(
             context,
@@ -166,7 +190,12 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(BuildContext context, String label, String value, {Color? valueColor}) {
+  Widget _buildRow(
+    BuildContext context,
+    String label,
+    String value, {
+    Color? valueColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
@@ -174,16 +203,15 @@ class ProductDetailsScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: AppColors.textSecondary),
           ),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: valueColor ?? AppColors.textPrimary,
-                ),
+              fontWeight: FontWeight.w600,
+              color: valueColor ?? AppColors.textPrimary,
+            ),
           ),
         ],
       ),

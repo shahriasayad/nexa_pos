@@ -5,7 +5,7 @@ enum ExpenseCategory {
   salary,
   transportation,
   maintenance,
-  other
+  other,
 }
 
 extension ExpenseCategoryX on ExpenseCategory {

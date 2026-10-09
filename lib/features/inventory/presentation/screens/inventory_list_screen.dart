@@ -4,6 +4,7 @@ import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
@@ -48,10 +49,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => InventoryDetailsScreen(
-          controller: _controller,
-          product: product,
-        ),
+        builder: (_) =>
+            InventoryDetailsScreen(controller: _controller, product: product),
       ),
     );
   }
@@ -90,12 +89,16 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               );
             case ViewState.success:
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.md,
+                ),
                 child: CustomCard(
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                      if (!ResponsiveLayout.isMobile(context)) _buildTableHeader(),
+                      if (!ResponsiveLayout.isMobile(context))
+                        _buildTableHeader(),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _controller.products.length,
@@ -117,7 +120,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
   Widget _buildTableHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -139,20 +145,29 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildInventoryRow(Product product) {
     final lastMove = _controller.lastMovements[product.id];
     final isMobile = ResponsiveLayout.isMobile(context);
-    
+
     if (isMobile) {
       return InkWell(
         onTap: () => _navigateToDetails(product),
         child: Container(
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+            border: Border(
+              bottom: BorderSide(color: Theme.of(context).dividerColor),
+            ),
           ),
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(product.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-              Text('SKU: ${product.sku}', style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                product.name,
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              Text(
+                'SKU: ${product.sku}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,9 +190,14 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
       onTap: () => _navigateToDetails(product),
       child: Container(
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+          border: Border(
+            bottom: BorderSide(color: Theme.of(context).dividerColor),
+          ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.md,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -187,9 +207,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 children: [
                   Text(
                     product.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
-                  Text(product.sku, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    product.sku,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
@@ -197,9 +221,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               flex: 1,
               child: Text(
                 '${product.stockQuantity}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(
@@ -209,20 +232,19 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: _buildStockIndicator(product),
-            ),
+            Expanded(flex: 1, child: _buildStockIndicator(product)),
             Expanded(
               flex: 2,
               child: lastMove != null
                   ? Text(
                       '${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: AppColors.textSecondary),
                     )
-                  : Text('No movements', style: Theme.of(context).textTheme.bodySmall),
+                  : Text(
+                      'No movements',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
             ),
           ],
         ),
@@ -233,7 +255,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildStockIndicator(Product product) {
     BadgeType badgeType;
     String label;
-    
+
     switch (product.stockStatus) {
       case StockStatus.inStock:
         badgeType = BadgeType.success;
@@ -265,9 +287,9 @@ class _HeaderCell extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-          ),
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
+      ),
     );
   }
 }

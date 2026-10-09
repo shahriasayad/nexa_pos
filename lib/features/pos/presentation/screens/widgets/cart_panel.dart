@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../controllers/pos_controller.dart';
 import '../../../../../shared/widgets/custom_button.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class CartPanel extends StatelessWidget {
   final PosController controller;
@@ -23,8 +26,14 @@ class CartPanel extends StatelessWidget {
           color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
           child: ListTile(
             leading: const Icon(Icons.person),
-            title: Text(controller.selectedCustomer?.name ?? 'Walk-in Customer'),
-            subtitle: Text(controller.selectedCustomer != null ? 'Customer selected' : 'No customer attached'),
+            title: Text(
+              controller.selectedCustomer?.name ?? 'Walk-in Customer',
+            ),
+            subtitle: Text(
+              controller.selectedCustomer != null
+                  ? 'Customer selected'
+                  : 'No customer attached',
+            ),
             trailing: TextButton(
               onPressed: onShowCustomerSelection,
               child: const Text('Change'),
@@ -41,13 +50,18 @@ class CartPanel extends StatelessWidget {
                     final item = controller.cart[index];
                     return ListTile(
                       title: Text(item.product.name),
-                      subtitle: Text('\$${item.product.sellingPrice.toStringAsFixed(2)} x ${item.quantity}'),
+                      subtitle: Text(
+                        '\$${item.product.sellingPrice.toStringAsFixed(2)} x ${item.quantity}',
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: () => controller.updateQuantity(item.product, item.quantity - 1),
+                            onPressed: () => controller.updateQuantity(
+                              item.product,
+                              item.quantity - 1,
+                            ),
                           ),
                           Text('${item.quantity}'),
                           IconButton(
@@ -55,8 +69,12 @@ class CartPanel extends StatelessWidget {
                             onPressed: () => controller.addToCart(item.product),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => controller.removeFromCart(item.product),
+                            icon: const Icon(
+                              Icons.delete,
+                              color: AppColors.danger,
+                            ),
+                            onPressed: () =>
+                                controller.removeFromCart(item.product),
                           ),
                         ],
                       ),
@@ -73,15 +91,28 @@ class CartPanel extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Subtotal:', style: TextStyle(fontSize: 16)),
-                  Text('\$${controller.subtotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    '\$${controller.subtotal.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('\$${controller.grandTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  const Text(
+                    'Total:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '\$${controller.grandTotal.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.success,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -91,7 +122,9 @@ class CartPanel extends StatelessWidget {
                     child: CustomButton(
                       label: 'Clear',
                       variant: CustomButtonVariant.outline,
-                      onPressed: controller.cart.isEmpty ? null : controller.clearCart,
+                      onPressed: controller.cart.isEmpty
+                          ? null
+                          : controller.clearCart,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -100,7 +133,9 @@ class CartPanel extends StatelessWidget {
                     child: CustomButton(
                       label: 'Checkout',
                       variant: CustomButtonVariant.primary,
-                      onPressed: controller.cart.isEmpty ? null : onShowCheckout,
+                      onPressed: controller.cart.isEmpty
+                          ? null
+                          : onShowCheckout,
                     ),
                   ),
                 ],

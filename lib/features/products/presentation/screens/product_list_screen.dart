@@ -3,6 +3,7 @@ import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
@@ -51,10 +52,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ProductFormScreen(
-          controller: _controller,
-          productId: productId,
-        ),
+        builder: (_) =>
+            ProductFormScreen(controller: _controller, productId: productId),
       ),
     );
   }
@@ -63,10 +62,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ProductDetailsScreen(
-          controller: _controller,
-          product: product,
-        ),
+        builder: (_) =>
+            ProductDetailsScreen(controller: _controller, product: product),
       ),
     );
   }
@@ -80,7 +77,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
           label: 'Add Product',
           icon: Icons.add,
           onPressed: () => _navigateToForm(),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 8,
+          ),
         ),
       ],
       child: ListenableBuilder(
@@ -105,7 +105,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.md,
+                  ),
                   child: _buildContent(),
                 ),
               ),
@@ -163,7 +166,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Widget _buildTableHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -194,9 +200,9 @@ class _HeaderCell extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-          ),
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
+      ),
     );
   }
 }

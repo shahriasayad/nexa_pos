@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../products/data/repositories/mock_product_repository.dart';
 import '../../pos/data/repositories/mock_sales_repository.dart';
@@ -16,12 +17,15 @@ import 'widgets/top_products_list.dart';
 import '../../../../core/layout/app_shell.dart';
 import '../../expenses/data/repositories/mock_expense_repository.dart';
 
+import 'package:nexa_pos/core/theme/app_colors.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
+
 class _DashboardScreenState extends State<DashboardScreen> {
   late DashboardController _controller;
 
@@ -115,7 +119,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMetricsGrid(int crossAxisCount, {double childAspectRatio = 1.5}) {
+  Widget _buildMetricsGrid(
+    int crossAxisCount, {
+    double childAspectRatio = 1.5,
+  }) {
     final metrics = _controller.metrics!;
     return GridView.count(
       crossAxisCount: crossAxisCount,
@@ -129,25 +136,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
           title: 'Revenue',
           value: '\$${metrics.revenue.toStringAsFixed(2)}',
           icon: Icons.attach_money,
-          iconColor: Colors.green,
+          iconColor: AppColors.success,
         ),
         StatCard(
           title: 'Orders',
           value: '${metrics.ordersCount}',
           icon: Icons.receipt_long,
-          iconColor: Colors.blue,
+          iconColor: AppColors.info,
         ),
         StatCard(
           title: 'Est. Profit',
           value: '\$${metrics.estimatedProfit.toStringAsFixed(2)}',
           icon: Icons.trending_up,
-          iconColor: Colors.purple,
+          iconColor: AppColors.purple,
         ),
         StatCard(
           title: 'Refunds',
           value: '\$${metrics.refunds.toStringAsFixed(2)}',
           icon: Icons.keyboard_return,
-          iconColor: Colors.red,
+          iconColor: AppColors.danger,
         ),
       ],
     );
@@ -190,7 +197,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               flex: 2,
-              child: RecentTransactionsList(transactions: _controller.recentTransactions),
+              child: RecentTransactionsList(
+                transactions: _controller.recentTransactions,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -229,7 +238,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
               SalesChart(metrics: _controller.metrics!),
               const SizedBox(height: 16),
-              RecentTransactionsList(transactions: _controller.recentTransactions),
+              RecentTransactionsList(
+                transactions: _controller.recentTransactions,
+              ),
             ],
           ),
         ),

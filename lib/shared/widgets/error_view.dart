@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const ErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const ErrorView({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +15,7 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 48,
-            ),
+            const Icon(Icons.error_outline, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
             Text(
               message,
@@ -36,7 +29,7 @@ class ErrorView extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
               ),
-            ]
+            ],
           ],
         ),
       ),

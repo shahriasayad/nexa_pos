@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/employee.dart';
 import '../../domain/repositories/employee_repository.dart';
@@ -11,7 +12,7 @@ class EmployeeController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Employee> employees = [];
   String? currentQuery;
 
@@ -33,7 +34,7 @@ class EmployeeController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-    
+
     try {
       final existing = await repository.getEmployeeById(employee.id);
       if (existing != null) {
@@ -56,7 +57,7 @@ class EmployeeController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-    
+
     try {
       await repository.deleteEmployee(id);
       await loadEmployees(query: currentQuery);

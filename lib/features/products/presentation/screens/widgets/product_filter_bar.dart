@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_text_field.dart';
+
 import '../../../domain/models/product.dart';
 import '../../controllers/product_controller.dart';
 
@@ -18,7 +19,10 @@ class ProductFilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.md,
+      ),
       child: Column(
         children: [
           Row(
@@ -45,11 +49,16 @@ class ProductFilterBar extends StatelessWidget {
                         context,
                         value: controller.selectedCategoryId,
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('All Categories')),
-                          ...controller.categories.map((c) => DropdownMenuItem(
-                                value: c.id,
-                                child: Text(c.name),
-                              )),
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('All Categories'),
+                          ),
+                          ...controller.categories.map(
+                            (c) => DropdownMenuItem(
+                              value: c.id,
+                              child: Text(c.name),
+                            ),
+                          ),
                         ],
                         onChanged: (val) => controller.setCategory(val),
                       ),
@@ -58,11 +67,16 @@ class ProductFilterBar extends StatelessWidget {
                         context,
                         value: controller.selectedStockStatus,
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('All Stock')),
-                          ...StockStatus.values.map((s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(s.name.toUpperCase()),
-                              )),
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('All Stock'),
+                          ),
+                          ...StockStatus.values.map(
+                            (s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s.name.toUpperCase()),
+                            ),
+                          ),
                         ],
                         onChanged: (val) => controller.setStockStatus(val),
                       ),
@@ -71,9 +85,15 @@ class ProductFilterBar extends StatelessWidget {
                         context,
                         value: controller.isActiveFilter,
                         items: const [
-                          DropdownMenuItem(value: null, child: Text('All Status')),
+                          DropdownMenuItem(
+                            value: null,
+                            child: Text('All Status'),
+                          ),
                           DropdownMenuItem(value: true, child: Text('Active')),
-                          DropdownMenuItem(value: false, child: Text('Inactive')),
+                          DropdownMenuItem(
+                            value: false,
+                            child: Text('Inactive'),
+                          ),
                         ],
                         onChanged: (val) => controller.setActiveFilter(val),
                       ),

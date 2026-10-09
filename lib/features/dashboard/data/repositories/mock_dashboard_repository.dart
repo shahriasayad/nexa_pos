@@ -33,10 +33,13 @@ class MockDashboardRepository implements DashboardRepository {
   Future<DashboardMetrics> getMetrics(DashboardFilter filter) async {
     final startDate = _getStartDateForFilter(filter);
     final sales = await salesRepo.getSales(startDate: startDate);
-    
+
     // Calculate expenses
     final allExpenses = await expenseRepo.getExpenses(startDate: startDate);
-    final totalExpenses = allExpenses.fold<double>(0.0, (sum, e) => sum + e.amount);
+    final totalExpenses = allExpenses.fold<double>(
+      0.0,
+      (sum, e) => sum + e.amount,
+    );
 
     double revenue = 0.0;
     double refunds = 0.0;
@@ -58,7 +61,8 @@ class MockDashboardRepository implements DashboardRepository {
     return DashboardMetrics(
       revenue: revenue,
       ordersCount: sales.length,
-      estimatedProfit: revenue * 0.3 - totalExpenses, // Deduct expenses from profit
+      estimatedProfit:
+          revenue * 0.3 - totalExpenses, // Deduct expenses from profit
       refunds: refunds,
       expenses: totalExpenses,
       chartData: chartData,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/custom_text_field.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../domain/models/product.dart';
 import '../controllers/product_controller.dart';
@@ -13,7 +13,11 @@ class ProductFormScreen extends StatefulWidget {
   final ProductController controller;
   final String? productId;
 
-  const ProductFormScreen({super.key, required this.controller, this.productId});
+  const ProductFormScreen({
+    super.key,
+    required this.controller,
+    this.productId,
+  });
 
   @override
   State<ProductFormScreen> createState() => _ProductFormScreenState();
@@ -21,7 +25,7 @@ class ProductFormScreen extends StatefulWidget {
 
 class _ProductFormScreenState extends State<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _skuController;
   late TextEditingController _barcodeController;
@@ -29,7 +33,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late TextEditingController _sellingPriceController;
   late TextEditingController _stockController;
   late TextEditingController _minStockController;
-  
+
   String? _categoryId;
   bool _isActive = true;
   Product? _existingProduct;
@@ -38,17 +42,29 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void initState() {
     super.initState();
     if (widget.productId != null) {
-      _existingProduct = widget.controller.products.firstWhere((p) => p.id == widget.productId);
+      _existingProduct = widget.controller.products.firstWhere(
+        (p) => p.id == widget.productId,
+      );
     }
 
     _nameController = TextEditingController(text: _existingProduct?.name ?? '');
     _skuController = TextEditingController(text: _existingProduct?.sku ?? '');
-    _barcodeController = TextEditingController(text: _existingProduct?.barcode ?? '');
-    _purchasePriceController = TextEditingController(text: _existingProduct?.purchasePrice.toString() ?? '');
-    _sellingPriceController = TextEditingController(text: _existingProduct?.sellingPrice.toString() ?? '');
-    _stockController = TextEditingController(text: _existingProduct?.stockQuantity.toString() ?? '');
-    _minStockController = TextEditingController(text: _existingProduct?.minimumStock.toString() ?? '');
-    
+    _barcodeController = TextEditingController(
+      text: _existingProduct?.barcode ?? '',
+    );
+    _purchasePriceController = TextEditingController(
+      text: _existingProduct?.purchasePrice.toString() ?? '',
+    );
+    _sellingPriceController = TextEditingController(
+      text: _existingProduct?.sellingPrice.toString() ?? '',
+    );
+    _stockController = TextEditingController(
+      text: _existingProduct?.stockQuantity.toString() ?? '',
+    );
+    _minStockController = TextEditingController(
+      text: _existingProduct?.minimumStock.toString() ?? '',
+    );
+
     _categoryId = _existingProduct?.categoryId;
     _isActive = _existingProduct?.isActive ?? true;
   }
@@ -68,7 +84,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       final product = Product(
-        id: _existingProduct?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            _existingProduct?.id ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
         sku: _skuController.text,
         barcode: _barcodeController.text,
@@ -77,7 +95,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         sellingPrice: double.parse(_sellingPriceController.text),
         stockQuantity: int.parse(_stockController.text),
         minimumStock: int.parse(_minStockController.text),
-        isActive: _isActive, createdAt: _existingProduct?.createdAt ?? DateTime.now(), updatedAt: DateTime.now(),
+        isActive: _isActive,
+        createdAt: _existingProduct?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       if (_existingProduct != null) {
@@ -85,7 +105,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       } else {
         await widget.controller.saveProduct(product);
       }
-      
+
       if (mounted) Navigator.pop(context);
     }
   }
@@ -93,14 +113,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   @override
   Widget build(BuildContext context) {
     final title = _existingProduct != null ? 'Edit Product' : 'Add Product';
-    
+
     return AppShell(
       title: title,
       actions: [
         CustomButton(
           label: 'Save Product',
           onPressed: _submit,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 8,
+          ),
         ),
       ],
       child: Form(
@@ -158,11 +181,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           const SizedBox(height: AppSpacing.md),
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(labelText: 'Category *'),
-            value: _categoryId,
-            items: widget.controller.categories.map((c) => DropdownMenuItem(
-              value: c.id,
-              child: Text(c.name),
-            )).toList(),
+            initialValue: _categoryId,
+            items: widget.controller.categories
+                .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
+                .toList(),
             onChanged: (val) => setState(() => _categoryId = val),
             validator: (v) => v == null ? 'Required' : null,
           ),
@@ -185,7 +207,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   controller: _purchasePriceController,
                   keyboardType: TextInputType.number,
                   prefixIcon: const Icon(Icons.attach_money),
-                  validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                  validator: (v) =>
+                      double.tryParse(v ?? '') == null ? 'Invalid' : null,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -195,7 +218,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   controller: _sellingPriceController,
                   keyboardType: TextInputType.number,
                   prefixIcon: const Icon(Icons.attach_money),
-                  validator: (v) => double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                  validator: (v) =>
+                      double.tryParse(v ?? '') == null ? 'Invalid' : null,
                 ),
               ),
             ],
@@ -218,7 +242,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   label: 'Initial Stock *',
                   controller: _stockController,
                   keyboardType: TextInputType.number,
-                  validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                  validator: (v) =>
+                      int.tryParse(v ?? '') == null ? 'Invalid' : null,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -227,7 +252,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   label: 'Minimum Stock *',
                   controller: _minStockController,
                   keyboardType: TextInputType.number,
-                  validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                  validator: (v) =>
+                      int.tryParse(v ?? '') == null ? 'Invalid' : null,
                 ),
               ),
             ],
@@ -235,7 +261,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           const SizedBox(height: AppSpacing.md),
           SwitchListTile(
             title: const Text('Product is Active'),
-            subtitle: const Text('Inactive products are hidden from POS checkout'),
+            subtitle: const Text(
+              'Inactive products are hidden from POS checkout',
+            ),
             value: _isActive,
             onChanged: (v) => setState(() => _isActive = v),
             contentPadding: EdgeInsets.zero,

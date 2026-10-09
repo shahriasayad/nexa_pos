@@ -3,6 +3,7 @@ import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
+
 import '../../domain/models/product_summary.dart';
 
 class TopProductsList extends StatelessWidget {
@@ -55,7 +56,9 @@ class TopProductsList extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Theme.of(context).dividerColor),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: const Icon(Icons.inventory_2_outlined, size: 20),
                       ),
@@ -66,9 +69,8 @@ class TopProductsList extends StatelessWidget {
                           children: [
                             Text(
                               product.name,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -76,10 +78,15 @@ class TopProductsList extends StatelessWidget {
                               isLowStock
                                   ? 'Stock: ${product.stockQuantity}'
                                   : 'Sold: ${product.soldQuantity}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: isLowStock ? AppColors.warning : AppColors.textSecondary,
-                                fontWeight: isLowStock ? FontWeight.bold : FontWeight.normal,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: isLowStock
+                                        ? AppColors.warning
+                                        : AppColors.textSecondary,
+                                    fontWeight: isLowStock
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                             ),
                           ],
                         ),
@@ -87,9 +94,8 @@ class TopProductsList extends StatelessWidget {
                       const SizedBox(width: AppSpacing.md),
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),

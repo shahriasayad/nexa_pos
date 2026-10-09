@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/employee.dart';
 import '../../data/repositories/mock_employee_repository.dart';
 import '../controllers/employee_controller.dart';
 import 'employee_form_screen.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class EmployeeListScreen extends StatefulWidget {
   const EmployeeListScreen({super.key});
@@ -44,14 +47,13 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Employees',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openEmployeeForm(),
-          ),
-        ],
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openEmployeeForm(),
+        ),
+      ],
       child: Column(
         children: [
           Padding(
@@ -73,7 +75,11 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (_controller.state == ViewState.error) {
-                  return Center(child: Text(_controller.errorMessage ?? 'Error loading employees'));
+                  return Center(
+                    child: Text(
+                      _controller.errorMessage ?? 'Error loading employees',
+                    ),
+                  );
                 }
                 if (_controller.state == ViewState.empty) {
                   return const Center(child: Text('No employees found.'));
@@ -84,14 +90,26 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                   itemBuilder: (context, index) {
                     final employee = _controller.employees[index];
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: employee.isActive ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2),
-                          child: Icon(Icons.person, color: employee.isActive ? Colors.green : Colors.red),
+                          backgroundColor: employee.isActive
+                              ? AppColors.success.withValues(alpha: 0.2)
+                              : AppColors.danger.withValues(alpha: 0.2),
+                          child: Icon(
+                            Icons.person,
+                            color: employee.isActive
+                                ? AppColors.success
+                                : AppColors.danger,
+                          ),
                         ),
                         title: Text(employee.name),
-                        subtitle: Text('${employee.role.displayName} • ${employee.email}'),
+                        subtitle: Text(
+                          '${employee.role.displayName} • ${employee.email}',
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _openEmployeeForm(employee),
                       ),

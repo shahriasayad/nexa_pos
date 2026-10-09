@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/sale_transaction.dart';
 
 class ReceiptDialog extends StatelessWidget {
@@ -15,25 +16,36 @@ class ReceiptDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Transaction ID: ${sale.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'Transaction ID: ${sale.id}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             Text('Time: ${sale.timestamp.toString().split('.')[0]}'),
             const Divider(),
-            ...sale.items.map((i) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${i.quantity}x ${i.productName}'),
-                  Text('\$${i.lineTotal.toStringAsFixed(2)}'),
-                ],
+            ...sale.items.map(
+              (i) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${i.quantity}x ${i.productName}'),
+                    Text('\$${i.lineTotal.toStringAsFixed(2)}'),
+                  ],
+                ),
               ),
-            )),
+            ),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('\$${sale.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Total:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '\$${sale.total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             Row(

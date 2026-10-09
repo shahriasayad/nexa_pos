@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../core/error/failures.dart';
 import '../../../products/domain/models/product.dart';
@@ -23,7 +24,7 @@ class InventoryController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Product> products = [];
   List<Category> categories = [];
   Map<String, StockMovement> lastMovements = {};
@@ -41,14 +42,15 @@ class InventoryController extends ChangeNotifier {
       if (categories.isEmpty) {
         categories = await categoryRepo.getCategories();
       }
-      
+
       var rawProducts = await productRepo.getProducts(
         search: searchQuery,
         categoryId: selectedCategoryId,
       );
 
       products = rawProducts.where((p) {
-        bool matchesStock = selectedStockStatus == null || p.stockStatus == selectedStockStatus;
+        bool matchesStock =
+            selectedStockStatus == null || p.stockStatus == selectedStockStatus;
         return matchesStock;
       }).toList();
 
@@ -58,7 +60,7 @@ class InventoryController extends ChangeNotifier {
           lastMovements[p.id] = movements.first;
         }
       }
-      
+
       state = products.isEmpty ? ViewState.empty : ViewState.success;
     } catch (e) {
       state = ViewState.error;
@@ -69,10 +71,12 @@ class InventoryController extends ChangeNotifier {
   }
 
   void setSearch(String? query) {
-    searchQuery = (query != null && query.trim().isNotEmpty) ? query.trim() : null;
+    searchQuery = (query != null && query.trim().isNotEmpty)
+        ? query.trim()
+        : null;
     loadInventory();
   }
-  
+
   void setCategory(String? categoryId) {
     selectedCategoryId = categoryId;
     loadInventory();
@@ -110,7 +114,10 @@ class InventoryController extends ChangeNotifier {
     }
 
     try {
-      final updatedProduct = product.copyWith(stockQuantity: newStock, updatedAt: DateTime.now());
+      final updatedProduct = product.copyWith(
+        stockQuantity: newStock,
+        updatedAt: DateTime.now(),
+      );
       await productRepo.updateProduct(updatedProduct);
 
       final movement = StockMovement(

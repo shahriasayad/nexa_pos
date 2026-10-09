@@ -1,8 +1,4 @@
-enum EmployeeRole {
-  admin,
-  manager,
-  cashier,
-}
+enum EmployeeRole { admin, manager, cashier }
 
 enum Permission {
   createSale,
@@ -41,9 +37,7 @@ extension EmployeeRoleExtension on EmployeeRole {
           Permission.viewReports,
         };
       case EmployeeRole.cashier:
-        return {
-          Permission.createSale,
-        };
+        return {Permission.createSale};
     }
   }
 }
@@ -54,7 +48,8 @@ class Employee {
   final String email;
   final String? phone;
   final EmployeeRole role;
-  final Set<Permission> customPermissions; // If we want to override default role permissions
+  final Set<Permission>
+  customPermissions; // If we want to override default role permissions
   final bool isActive;
   final DateTime createdAt;
 
@@ -69,8 +64,9 @@ class Employee {
     required this.createdAt,
   }) : customPermissions = customPermissions ?? {};
 
-  Set<Permission> get effectivePermissions => 
-      customPermissions.isNotEmpty ? customPermissions : role.defaultPermissions;
+  Set<Permission> get effectivePermissions => customPermissions.isNotEmpty
+      ? customPermissions
+      : role.defaultPermissions;
 
   bool hasPermission(Permission permission) {
     if (!isActive) return false;

@@ -29,34 +29,65 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.dashboard:
-        return MaterialPageRoute(builder: (_) => const DashboardScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const DashboardScreen(),
+          settings: settings,
+        );
       case AppRoutes.products:
-        return MaterialPageRoute(builder: (_) => const ProductListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ProductListScreen(),
+          settings: settings,
+        );
       case AppRoutes.categories:
-        return MaterialPageRoute(builder: (_) => const CategoryListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const CategoryListScreen(),
+          settings: settings,
+        );
       case AppRoutes.inventory:
-        return MaterialPageRoute(builder: (_) => const InventoryListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const InventoryListScreen(),
+          settings: settings,
+        );
       case AppRoutes.pos:
-        return MaterialPageRoute(builder: (_) => const PosScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const PosScreen(),
+          settings: settings,
+        );
       case AppRoutes.transactions:
-        return MaterialPageRoute(builder: (_) => const TransactionHistoryScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const TransactionHistoryScreen(),
+          settings: settings,
+        );
       case AppRoutes.customers:
-        return MaterialPageRoute(builder: (_) => const CustomerListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const CustomerListScreen(),
+          settings: settings,
+        );
       case AppRoutes.suppliers:
-        return MaterialPageRoute(builder: (_) => const SupplierListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const SupplierListScreen(),
+          settings: settings,
+        );
       case AppRoutes.purchases:
-        return MaterialPageRoute(builder: (_) => const PurchaseListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const PurchaseListScreen(),
+          settings: settings,
+        );
       case AppRoutes.expenses:
-        return MaterialPageRoute(builder: (_) => const ExpenseListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ExpenseListScreen(),
+          settings: settings,
+        );
       case AppRoutes.employees:
-        return MaterialPageRoute(builder: (_) => const EmployeeListScreen(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const EmployeeListScreen(),
+          settings: settings,
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
             appBar: AppBar(title: const Text('Error')),
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
+            body: Center(child: Text('No route defined for ${settings.name}')),
           ),
         );
     }

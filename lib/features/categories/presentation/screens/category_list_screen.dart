@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
@@ -9,6 +10,8 @@ import '../../data/repositories/mock_category_repository.dart';
 import '../../../products/data/repositories/mock_product_repository.dart';
 
 import '../../../../core/layout/app_shell.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class CategoryListScreen extends StatefulWidget {
   const CategoryListScreen({super.key});
@@ -39,24 +42,21 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   void _showFormDialog([Category? category]) {
     showDialog(
       context: context,
-      builder: (context) => _CategoryFormDialog(
-        controller: _controller,
-        category: category,
-      ),
+      builder: (context) =>
+          _CategoryFormDialog(controller: _controller, category: category),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Categories',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showFormDialog(),
-          ),
-        ],
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _showFormDialog(),
+        ),
+      ],
       child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -103,7 +103,10 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                           onPressed: () => _showFormDialog(cat),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: AppColors.danger,
+                          ),
                           onPressed: () => _controller.deleteCategory(cat.id),
                         ),
                       ],
@@ -138,7 +141,9 @@ class _CategoryFormDialogState extends State<_CategoryFormDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.category?.name ?? '');
-    _descController = TextEditingController(text: widget.category?.description ?? '');
+    _descController = TextEditingController(
+      text: widget.category?.description ?? '',
+    );
     _isActive = widget.category?.isActive ?? true;
   }
 
@@ -199,10 +204,7 @@ class _CategoryFormDialogState extends State<_CategoryFormDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _submit,
-          child: const Text('Save'),
-        ),
+        ElevatedButton(onPressed: _submit, child: const Text('Save')),
       ],
     );
   }

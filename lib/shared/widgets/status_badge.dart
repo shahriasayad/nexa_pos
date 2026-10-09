@@ -23,30 +23,34 @@ class StatusBadge extends StatelessWidget {
 
     switch (type) {
       case BadgeType.success:
-        bgColor = AppColors.success.withOpacity(0.15);
-        textColor = isDark ? Colors.greenAccent : AppColors.success;
+        bgColor = AppColors.success.withValues(alpha: 0.15);
+        textColor = isDark ? AppColors.darkSuccess : AppColors.success;
         break;
       case BadgeType.warning:
-        bgColor = AppColors.warning.withOpacity(0.15);
-        textColor = isDark ? Colors.orangeAccent : AppColors.warning;
+        bgColor = AppColors.warning.withValues(alpha: 0.15);
+        textColor = isDark ? AppColors.darkWarning : AppColors.warning;
         break;
       case BadgeType.danger:
-        bgColor = AppColors.danger.withOpacity(0.15);
-        textColor = isDark ? Colors.redAccent : AppColors.danger;
+        bgColor = AppColors.danger.withValues(alpha: 0.15);
+        textColor = isDark ? AppColors.darkDanger : AppColors.danger;
         break;
       case BadgeType.info:
-        bgColor = AppColors.info.withOpacity(0.15);
-        textColor = isDark ? Colors.blueAccent : AppColors.info;
+        bgColor = AppColors.info.withValues(alpha: 0.15);
+        textColor = isDark ? AppColors.darkInfo : AppColors.info;
         break;
       case BadgeType.neutral:
-      default:
         bgColor = isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted;
-        textColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+        textColor = isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.textSecondary;
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
