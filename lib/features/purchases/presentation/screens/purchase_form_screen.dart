@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/purchase_order.dart';
 import '../../data/repositories/mock_purchase_repository.dart';
 import '../../../products/data/repositories/mock_product_repository.dart';
@@ -20,11 +21,11 @@ class PurchaseFormScreen extends StatefulWidget {
 class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
   late PurchaseController _controller;
   final _productRepo = MockProductRepository();
-  
+
   List<Product> _allProducts = [];
   List<PurchaseItem> _items = [];
   String _supplierName = ''; // Simplification for prototype: just type it, or would normally select from supplier list.
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +40,7 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
     }
     _loadProducts();
   }
-  
+
   Future<void> _loadProducts() async {
     final products = await _productRepo.getProducts();
     setState(() {
@@ -52,15 +53,17 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
       final existingIndex = _items.indexWhere((i) => i.productId == product.id);
       if (existingIndex >= 0) {
         _items[existingIndex] = _items[existingIndex].copyWith(
-          quantity: _items[existingIndex].quantity + 1
+          quantity: _items[existingIndex].quantity + 1,
         );
       } else {
-        _items.add(PurchaseItem(
-          productId: product.id,
-          productName: product.name,
-          quantity: 1,
-          unitCost: product.purchasePrice,
-        ));
+        _items.add(
+          PurchaseItem(
+            productId: product.id,
+            productName: product.name,
+            quantity: 1,
+            unitCost: product.purchasePrice,
+          ),
+        );
       }
     });
   }
@@ -86,15 +89,22 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
   void _save(PurchaseStatus status) async {
     if (_supplierName.isEmpty || _items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Supplier name and at least one item are required.')),
+        const SnackBar(
+          content: Text('Supplier name and at least one item are required.'),
+        ),
       );
       return;
     }
-    
-    final totalAmount = _items.fold<double>(0, (sum, item) => sum + item.lineTotal);
-    
+
+    final totalAmount = _items.fold<double>(
+      0,
+      (sum, item) => sum + item.lineTotal,
+    );
+
     final purchase = PurchaseOrder(
-      id: widget.purchase?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          widget.purchase?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       supplierId: widget.purchase?.supplierId ?? 'sup-manual',
       supplierName: _supplierName,
       status: status,
@@ -102,7 +112,7 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
       totalAmount: totalAmount,
       orderDate: widget.purchase?.orderDate ?? DateTime.now(),
     );
-    
+
     final success = await _controller.savePurchase(purchase);
     if (success && mounted) {
       Navigator.pop(context, true);
@@ -111,11 +121,18 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final totalAmount = _items.fold<double>(0, (sum, item) => sum + item.lineTotal);
+    final totalAmount = _items.fold<double>(
+      0,
+      (sum, item) => sum + item.lineTotal,
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.purchase == null ? 'New Purchase Order' : 'Edit Purchase Order'),
+        title: Text(
+          widget.purchase == null
+              ? 'New Purchase Order'
+              : 'Edit Purchase Order',
+        ),
       ),
       body: Row(
         children: [
@@ -139,18 +156,22 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
                       final item = _items[index];
                       return ListTile(
                         title: Text(item.productName),
-                        subtitle: Text('\$${item.unitCost} x ${item.quantity} = \$${item.lineTotal}'),
+                        subtitle: Text(
+                          '\$${item.unitCost} x ${item.quantity} = \$${item.lineTotal}',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
                               icon: const Icon(Icons.remove),
-                              onPressed: () => _updateQuantity(index, item.quantity - 1),
+                              onPressed: () =>
+                                  _updateQuantity(index, item.quantity - 1),
                             ),
                             Text('${item.quantity}'),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: () => _updateQuantity(index, item.quantity + 1),
+                              onPressed: () =>
+                                  _updateQuantity(index, item.quantity + 1),
                             ),
                           ],
                         ),
@@ -164,8 +185,20 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text('\$$totalAmount', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Total:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '\$$totalAmount',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -201,7 +234,10 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('Products', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: Text(
+                    'Products',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
                 Expanded(
                   child: ListView.builder(

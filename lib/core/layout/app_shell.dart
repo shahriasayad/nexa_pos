@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/core/theme/app_typography.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 
@@ -23,16 +22,14 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final route = currentRoute ?? ModalRoute.of(context)?.settings.name ?? AppRoutes.dashboard;
+    final route =
+        currentRoute ??
+        ModalRoute.of(context)?.settings.name ??
+        AppRoutes.dashboard;
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              title: Text(title),
-              actions: actions,
-            ),
+      appBar: isDesktop ? null : AppBar(title: Text(title), actions: actions),
       drawer: isDesktop ? null : AppDrawer(currentRoute: route),
       floatingActionButton: floatingActionButton,
       body: isDesktop
@@ -65,12 +62,9 @@ class AppShell extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
+          Text(title, style: Theme.of(context).textTheme.headlineMedium),
           const Spacer(),
-          if (actions != null) ...actions!,
+          ...?actions,
         ],
       ),
     );
@@ -114,14 +108,16 @@ class AppSidebar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.storefront, color: Theme.of(context).colorScheme.primary, size: 28),
+          Icon(
+            Icons.storefront,
+            color: Theme.of(context).colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Text(
             'NEXA POS',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
+            style: Theme.of(context).textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
         ],
       ),
@@ -150,8 +146,14 @@ class AppSidebar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Admin User', style: Theme.of(context).textTheme.bodyMedium),
-                Text('admin@nexapos.com', style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Admin User',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                Text(
+                  'admin@nexapos.com',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
@@ -180,7 +182,7 @@ class AppDrawer extends StatelessWidget {
               child: Text(
                 'NEXA POS',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -210,7 +212,7 @@ List<Widget> _buildNavItems(BuildContext context, String currentRoute) {
       currentRoute: currentRoute,
     ),
     const SizedBox(height: AppSpacing.md),
-    
+
     _NavGroupTitle(title: 'Sales'),
     _NavItem(
       icon: Icons.point_of_sale,
@@ -225,7 +227,7 @@ List<Widget> _buildNavItems(BuildContext context, String currentRoute) {
       currentRoute: currentRoute,
     ),
     const SizedBox(height: AppSpacing.md),
-    
+
     _NavGroupTitle(title: 'Catalog'),
     _NavItem(
       icon: Icons.inventory_2_outlined,
@@ -246,7 +248,7 @@ List<Widget> _buildNavItems(BuildContext context, String currentRoute) {
       currentRoute: currentRoute,
     ),
     const SizedBox(height: AppSpacing.md),
-    
+
     _NavGroupTitle(title: 'Business'),
     _NavItem(
       icon: Icons.people_outline,
@@ -295,10 +297,10 @@ class _NavGroupTitle extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
-              letterSpacing: 1.2,
-            ),
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }
@@ -320,16 +322,23 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = currentRoute == route;
-    final theme = Theme.of(context);
-    
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
       child: ListTile(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.normal),
         ),
         leading: Icon(icon),
-        title: Text(title, style: TextStyle(fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
         selected: isSelected,
         onTap: () {
           if (!isSelected) {

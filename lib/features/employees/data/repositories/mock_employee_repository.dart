@@ -30,12 +30,15 @@ class MockEmployeeRepository implements EmployeeRepository {
   Future<List<Employee>> getEmployees({String? query}) async {
     await Future.delayed(const Duration(milliseconds: 200));
     if (query == null || query.isEmpty) return List.unmodifiable(_employees);
-    
+
     final lower = query.toLowerCase();
-    return _employees.where((e) => 
-      e.name.toLowerCase().contains(lower) || 
-      e.email.toLowerCase().contains(lower)
-    ).toList();
+    return _employees
+        .where(
+          (e) =>
+              e.name.toLowerCase().contains(lower) ||
+              e.email.toLowerCase().contains(lower),
+        )
+        .toList();
   }
 
   @override

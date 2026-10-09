@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/sale_transaction.dart';
 import '../controllers/pos_controller.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class CheckoutDialog extends StatefulWidget {
   final PosController controller;
@@ -14,11 +17,13 @@ class CheckoutDialog extends StatefulWidget {
 class _CheckoutDialogState extends State<CheckoutDialog> {
   PaymentMethod _method = PaymentMethod.cash;
   late TextEditingController _amountController;
-  
+
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: widget.controller.grandTotal.toStringAsFixed(2));
+    _amountController = TextEditingController(
+      text: widget.controller.grandTotal.toStringAsFixed(2),
+    );
   }
 
   @override
@@ -54,15 +59,22 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Total Due: \$${total.toStringAsFixed(2)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              'Total Due: \$${total.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             DropdownButtonFormField<PaymentMethod>(
               decoration: const InputDecoration(labelText: 'Payment Method'),
-              value: _method,
-              items: PaymentMethod.values.map((m) => DropdownMenuItem(
-                value: m,
-                child: Text(m.name.toUpperCase()),
-              )).toList(),
+              initialValue: _method,
+              items: PaymentMethod.values
+                  .map(
+                    (m) => DropdownMenuItem(
+                      value: m,
+                      child: Text(m.name.toUpperCase()),
+                    ),
+                  )
+                  .toList(),
               onChanged: (v) => setState(() => _method = v!),
             ),
             const SizedBox(height: 16),
@@ -70,11 +82,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(labelText: 'Amount Received'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 onChanged: (v) => setState(() {}),
               ),
               const SizedBox(height: 8),
-              Text('Change: \$${change.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, color: Colors.green)),
+              Text(
+                'Change: \$${change.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 18, color: AppColors.success),
+              ),
             ],
             if (widget.controller.isProcessingCheckout)
               const Padding(
@@ -85,8 +102,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: widget.controller.isProcessingCheckout ? null : () => Navigator.pop(context, false), child: const Text('Cancel')),
-        ElevatedButton(onPressed: widget.controller.isProcessingCheckout ? null : _confirm, child: const Text('Confirm Sale')),
+        TextButton(
+          onPressed: widget.controller.isProcessingCheckout
+              ? null
+              : () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: widget.controller.isProcessingCheckout ? null : _confirm,
+          child: const Text('Confirm Sale'),
+        ),
       ],
     );
   }

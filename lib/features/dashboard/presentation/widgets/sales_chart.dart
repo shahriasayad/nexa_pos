@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
+
 import '../../domain/models/dashboard_metrics.dart';
 
 class SalesChart extends StatelessWidget {
@@ -26,17 +26,24 @@ class SalesChart extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: metrics.chartData.map((value) {
                 // Simple proportional bar
-                final maxValue = metrics.chartData.reduce((a, b) => a > b ? a : b);
+                final maxValue = metrics.chartData.reduce(
+                  (a, b) => a > b ? a : b,
+                );
                 final heightFactor = maxValue == 0 ? 0.0 : value / maxValue;
-                
+
                 return Tooltip(
                   message: '\$${value.toStringAsFixed(2)}',
                   child: Container(
                     width: 32,
-                    height: (220 * heightFactor).clamp(4.0, 220.0), // Minimum height of 4.0
+                    height: (220 * heightFactor).clamp(
+                      4.0,
+                      220.0,
+                    ), // Minimum height of 4.0
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
+                      ),
                     ),
                   ),
                 );

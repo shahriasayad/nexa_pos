@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../products/domain/models/product.dart';
 import '../../domain/models/stock_movement.dart';
 import '../controllers/inventory_controller.dart';
@@ -22,7 +23,7 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
   late TextEditingController _qtyController;
   late TextEditingController _reasonController;
   late TextEditingController _noteController;
-  
+
   bool _isIncrease = true;
   StockMovementType _type = StockMovementType.manualAdjustment;
 
@@ -46,14 +47,18 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
     if (_formKey.currentState!.validate()) {
       final qty = int.tryParse(_qtyController.text) ?? 0;
       if (qty <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quantity must be greater than 0')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quantity must be greater than 0')),
+        );
         return;
       }
-      
+
       final change = _isIncrease ? qty : -qty;
       final newStock = widget.product.stockQuantity + change;
       if (newStock < 0) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Stock cannot be negative.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Stock cannot be negative.')),
+        );
         return;
       }
 
@@ -62,7 +67,9 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
         quantityChange: change,
         type: _type,
         reason: _reasonController.text.trim(),
-        note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+        note: _noteController.text.trim().isEmpty
+            ? null
+            : _noteController.text.trim(),
       );
 
       if (success && mounted) {
@@ -105,11 +112,10 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
               ),
               DropdownButtonFormField<StockMovementType>(
                 decoration: const InputDecoration(labelText: 'Type'),
-                value: _type,
-                items: StockMovementType.values.map((t) => DropdownMenuItem(
-                  value: t,
-                  child: Text(t.name),
-                )).toList(),
+                initialValue: _type,
+                items: StockMovementType.values
+                    .map((t) => DropdownMenuItem(value: t, child: Text(t.name)))
+                    .toList(),
                 onChanged: (v) => setState(() => _type = v!),
               ),
               const SizedBox(height: 8),
@@ -117,13 +123,15 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
                 controller: _qtyController,
                 decoration: const InputDecoration(labelText: 'Quantity *'),
                 keyboardType: TextInputType.number,
-                validator: (v) => int.tryParse(v ?? '') == null ? 'Invalid quantity' : null,
+                validator: (v) =>
+                    int.tryParse(v ?? '') == null ? 'Invalid quantity' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _reasonController,
                 decoration: const InputDecoration(labelText: 'Reason *'),
-                validator: (v) => v == null || v.isEmpty ? 'Reason required' : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Reason required' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -135,7 +143,10 @@ class _StockAdjustmentDialogState extends State<StockAdjustmentDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         ElevatedButton(onPressed: _submit, child: const Text('Apply')),
       ],
     );

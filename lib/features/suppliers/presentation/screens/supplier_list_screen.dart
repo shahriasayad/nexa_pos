@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../data/repositories/mock_supplier_repository.dart';
 import '../controllers/supplier_controller.dart';
 import 'supplier_form_screen.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class SupplierListScreen extends StatefulWidget {
   const SupplierListScreen({super.key});
@@ -31,7 +34,9 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
   }
 
   void _openSupplierForm([String? id]) async {
-    final supplier = id != null ? _controller.suppliers.firstWhere((s) => s.id == id) : null;
+    final supplier = id != null
+        ? _controller.suppliers.firstWhere((s) => s.id == id)
+        : null;
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => SupplierFormScreen(supplier: supplier)),
@@ -44,14 +49,13 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Suppliers',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openSupplierForm(),
-          ),
-        ],
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openSupplierForm(),
+        ),
+      ],
       child: Column(
         children: [
           Padding(
@@ -73,7 +77,11 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (_controller.state == ViewState.error) {
-                  return Center(child: Text(_controller.errorMessage ?? 'Error loading suppliers'));
+                  return Center(
+                    child: Text(
+                      _controller.errorMessage ?? 'Error loading suppliers',
+                    ),
+                  );
                 }
                 if (_controller.state == ViewState.empty) {
                   return const Center(child: Text('No suppliers found.'));
@@ -86,8 +94,19 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                     return ListTile(
                       leading: const CircleAvatar(child: Icon(Icons.business)),
                       title: Text(supplier.name),
-                      subtitle: Text(supplier.contactName ?? supplier.email ?? 'No contact info'),
-                      trailing: Text(supplier.isActive ? 'Active' : 'Inactive', style: TextStyle(color: supplier.isActive ? Colors.green : Colors.red)),
+                      subtitle: Text(
+                        supplier.contactName ??
+                            supplier.email ??
+                            'No contact info',
+                      ),
+                      trailing: Text(
+                        supplier.isActive ? 'Active' : 'Inactive',
+                        style: TextStyle(
+                          color: supplier.isActive
+                              ? AppColors.success
+                              : AppColors.danger,
+                        ),
+                      ),
                       onTap: () => _openSupplierForm(supplier.id),
                     );
                   },

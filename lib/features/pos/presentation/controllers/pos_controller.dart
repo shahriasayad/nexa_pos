@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../products/domain/models/product.dart';
 import '../../../products/domain/repositories/product_repository.dart';
@@ -27,13 +28,13 @@ class PosController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Product> searchResults = [];
   String? searchQuery;
   String? categoryId;
-  
+
   List<CartItem> cart = [];
-  
+
   bool isProcessingCheckout = false;
   SaleTransaction? lastCompletedSale;
   Customer? selectedCustomer;
@@ -46,14 +47,16 @@ class PosController extends ChangeNotifier {
   Future<void> searchProducts(String? query, {String? category}) async {
     searchQuery = query;
     categoryId = category;
-    
+
     try {
       final results = await productRepo.getProducts(
         search: query,
         categoryId: category,
       );
       // Filter out inactive products and out of stock
-      searchResults = results.where((p) => p.isActive && p.stockQuantity > 0).toList();
+      searchResults = results
+          .where((p) => p.isActive && p.stockQuantity > 0)
+          .toList();
       notifyListeners();
     } catch (e) {
       errorMessage = 'Failed to search products.';
@@ -66,7 +69,7 @@ class PosController extends ChangeNotifier {
       _setError('Product is out of stock.');
       return;
     }
-    
+
     final existingIndex = cart.indexWhere((i) => i.product.id == product.id);
     if (existingIndex >= 0) {
       final existingItem = cart[existingIndex];
@@ -74,13 +77,15 @@ class PosController extends ChangeNotifier {
         _setError('Cannot exceed available stock (${product.stockQuantity}).');
         return;
       }
-      cart[existingIndex] = existingItem.copyWith(quantity: existingItem.quantity + 1);
+      cart[existingIndex] = existingItem.copyWith(
+        quantity: existingItem.quantity + 1,
+      );
     } else {
       cart.add(CartItem(product: product, quantity: 1));
     }
     notifyListeners();
   }
-  
+
   void updateQuantity(Product product, int quantity) {
     if (quantity <= 0) {
       removeFromCart(product);
@@ -123,7 +128,7 @@ class PosController extends ChangeNotifier {
       _setError('Cart is empty.');
       return false;
     }
-    
+
     if (amountReceived < grandTotal) {
       _setError('Insufficient payment amount.');
       return false;
@@ -137,25 +142,35 @@ class PosController extends ChangeNotifier {
     try {
       // 1. Revalidate stock for all items
       for (final item in cart) {
-        final currentProduct = await productRepo.getProductById(item.product.id);
+        final currentProduct = await productRepo.getProductById(
+          item.product.id,
+        );
         if (currentProduct == null || !currentProduct.isActive) {
-          throw Exception('Product ${item.product.name} is no longer available.');
+          throw Exception(
+            'Product ${item.product.name} is no longer available.',
+          );
         }
         if (currentProduct.stockQuantity < item.quantity) {
-          throw Exception('Insufficient stock for ${item.product.name}. Available: ${currentProduct.stockQuantity}.');
+          throw Exception(
+            'Insufficient stock for ${item.product.name}. Available: ${currentProduct.stockQuantity}.',
+          );
         }
       }
 
       // 2. Create Transaction
       final transactionId = DateTime.now().millisecondsSinceEpoch.toString();
-      final saleItems = cart.map((i) => SaleItem(
-        productId: i.product.id,
-        productName: i.product.name,
-        productSku: i.product.sku,
-        unitPrice: i.product.sellingPrice,
-        quantity: i.quantity,
-        lineTotal: i.lineTotal,
-      )).toList();
+      final saleItems = cart
+          .map(
+            (i) => SaleItem(
+              productId: i.product.id,
+              productName: i.product.name,
+              productSku: i.product.sku,
+              unitPrice: i.product.sellingPrice,
+              quantity: i.quantity,
+              lineTotal: i.lineTotal,
+            ),
+          )
+          .toList();
 
       final sale = SaleTransaction(
         id: transactionId,
@@ -175,25 +190,33 @@ class PosController extends ChangeNotifier {
 
       // 3. Deduct inventory and log movements
       for (final item in cart) {
-        final currentProduct = (await productRepo.getProductById(item.product.id))!;
+        final currentProduct = (await productRepo.getProductById(
+          item.product.id,
+        ))!;
         final newStock = currentProduct.stockQuantity - item.quantity;
-        
-        await productRepo.updateProduct(currentProduct.copyWith(
-          stockQuantity: newStock, 
-          updatedAt: DateTime.now(),
-        ));
-        
-        await inventoryRepo.logMovement(StockMovement(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + item.product.id,
-          productId: item.product.id,
-          quantityChange: -item.quantity,
-          type: StockMovementType.sale,
-          previousStock: currentProduct.stockQuantity,
-          newStock: newStock,
-          reason: 'Sale transaction',
-          referenceId: transactionId,
-          timestamp: DateTime.now(),
-        ));
+
+        await productRepo.updateProduct(
+          currentProduct.copyWith(
+            stockQuantity: newStock,
+            updatedAt: DateTime.now(),
+          ),
+        );
+
+        await inventoryRepo.logMovement(
+          StockMovement(
+            id:
+                DateTime.now().millisecondsSinceEpoch.toString() +
+                item.product.id,
+            productId: item.product.id,
+            quantityChange: -item.quantity,
+            type: StockMovementType.sale,
+            previousStock: currentProduct.stockQuantity,
+            newStock: newStock,
+            reason: 'Sale transaction',
+            referenceId: transactionId,
+            timestamp: DateTime.now(),
+          ),
+        );
       }
 
       // 4. Save sale transaction
@@ -203,9 +226,9 @@ class PosController extends ChangeNotifier {
       if (selectedCustomer != null) {
         final c = await customerRepo.getCustomerById(selectedCustomer!.id);
         if (c != null) {
-          await customerRepo.updateCustomer(c.copyWith(
-            totalSpending: c.totalSpending + grandTotal,
-          ));
+          await customerRepo.updateCustomer(
+            c.copyWith(totalSpending: c.totalSpending + grandTotal),
+          );
         }
       }
 
@@ -214,7 +237,6 @@ class PosController extends ChangeNotifier {
       isProcessingCheckout = false;
       notifyListeners();
       return true;
-
     } catch (e) {
       isProcessingCheckout = false;
       _setError(e.toString().replaceAll('Exception: ', ''));
@@ -232,4 +254,3 @@ class PosController extends ChangeNotifier {
     notifyListeners();
   }
 }
-

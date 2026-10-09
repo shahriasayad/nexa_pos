@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../customers/data/repositories/mock_customer_repository.dart';
 import '../../../customers/presentation/controllers/customer_controller.dart';
@@ -7,7 +8,8 @@ class CustomerSelectionDialog extends StatefulWidget {
   const CustomerSelectionDialog({super.key});
 
   @override
-  State<CustomerSelectionDialog> createState() => _CustomerSelectionDialogState();
+  State<CustomerSelectionDialog> createState() =>
+      _CustomerSelectionDialogState();
 }
 
 class _CustomerSelectionDialogState extends State<CustomerSelectionDialog> {
@@ -37,7 +39,10 @@ class _CustomerSelectionDialogState extends State<CustomerSelectionDialog> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Select Customer', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Select Customer',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _searchController,
@@ -52,11 +57,14 @@ class _CustomerSelectionDialogState extends State<CustomerSelectionDialog> {
               child: ListenableBuilder(
                 listenable: _controller,
                 builder: (context, _) {
-                  if (_controller.state == ViewState.loading || _controller.state == ViewState.initial) {
+                  if (_controller.state == ViewState.loading ||
+                      _controller.state == ViewState.initial) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (_controller.state == ViewState.error) {
-                    return Center(child: Text(_controller.errorMessage ?? 'Error'));
+                    return Center(
+                      child: Text(_controller.errorMessage ?? 'Error'),
+                    );
                   }
                   if (_controller.state == ViewState.empty) {
                     return const Center(child: Text('No customers found'));
@@ -87,7 +95,10 @@ class _CustomerSelectionDialogState extends State<CustomerSelectionDialog> {
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: () => Navigator.pop(context, 'clear'), // Special signal to clear customer
+                  onPressed: () => Navigator.pop(
+                    context,
+                    'clear',
+                  ), // Special signal to clear customer
                   child: const Text('Walk-in Customer'),
                 ),
               ],

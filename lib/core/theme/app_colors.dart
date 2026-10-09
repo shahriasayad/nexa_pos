@@ -11,7 +11,7 @@ class AppColors {
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceMuted = Color(0xFFF1F4F2);
   static const Color border = Color(0xFFE2E8E4);
-  
+
   // Text - Light
   static const Color textPrimary = Color(0xFF17201B);
   static const Color textSecondary = Color(0xFF66736B);
@@ -23,6 +23,15 @@ class AppColors {
   static const Color danger = Color(0xFFDC2626);
   static const Color info = Color(0xFF2563EB);
 
+  // Accents / Dashboard Colors
+  static const Color purple = Color(0xFF9333EA);
+  static const Color orange = Color(0xFFF97316);
+  static const Color teal = Color(0xFF0D9488);
+  static const Color grey = Color(0xFF9CA3AF);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+  static const Color transparent = Colors.transparent;
+
   // Neutrals - Dark
   static const Color darkBackground = Color(0xFF0F172A); // Deep charcoal/slate
   static const Color darkSurface = Color(0xFF1E293B);
@@ -33,4 +42,10 @@ class AppColors {
   static const Color darkTextPrimary = Color(0xFFF8FAFC);
   static const Color darkTextSecondary = Color(0xFFCBD5E1);
   static const Color darkTextMuted = Color(0xFF94A3B8);
+
+  // Semantic - Dark
+  static const Color darkSuccess = Color(0xFF4ADE80);
+  static const Color darkWarning = Color(0xFFFBBF24);
+  static const Color darkDanger = Color(0xFFF87171);
+  static const Color darkInfo = Color(0xFF60A5FA);
 }

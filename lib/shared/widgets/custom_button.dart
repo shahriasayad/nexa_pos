@@ -39,7 +39,13 @@ class CustomButton extends StatelessWidget {
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           );
 
@@ -77,7 +83,6 @@ class CustomButton extends StatelessWidget {
           child: child,
         );
       case CustomButtonVariant.primary:
-      default:
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,

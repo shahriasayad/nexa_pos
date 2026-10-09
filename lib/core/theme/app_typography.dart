@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class AppTypography {
-  static const String fontFamily = 'Inter'; // A clean sans-serif like Inter or Roboto
+  static const String fontFamily =
+      'Inter'; // A clean sans-serif like Inter or Roboto
 
   // Light Theme TextStyles
   static const TextStyle display = TextStyle(
@@ -40,7 +41,7 @@ class AppTypography {
     fontWeight: FontWeight.normal,
     color: AppColors.textSecondary,
   );
-  
+
   static const TextStyle financial = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w600,

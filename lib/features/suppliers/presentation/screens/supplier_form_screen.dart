@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/supplier.dart';
 import '../../data/repositories/mock_supplier_repository.dart';
 import '../controllers/supplier_controller.dart';
@@ -28,10 +29,18 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
     super.initState();
     _controller = SupplierController(repository: MockSupplierRepository());
     _nameController = TextEditingController(text: widget.supplier?.name ?? '');
-    _contactController = TextEditingController(text: widget.supplier?.contactName ?? '');
-    _phoneController = TextEditingController(text: widget.supplier?.phone ?? '');
-    _emailController = TextEditingController(text: widget.supplier?.email ?? '');
-    _addressController = TextEditingController(text: widget.supplier?.address ?? '');
+    _contactController = TextEditingController(
+      text: widget.supplier?.contactName ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.supplier?.phone ?? '',
+    );
+    _emailController = TextEditingController(
+      text: widget.supplier?.email ?? '',
+    );
+    _addressController = TextEditingController(
+      text: widget.supplier?.address ?? '',
+    );
     _isActive = widget.supplier?.isActive ?? true;
   }
 
@@ -49,12 +58,18 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   Future<void> _save() async {
     if (_formKey.currentState!.validate()) {
       final supplier = Supplier(
-        id: widget.supplier?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            widget.supplier?.id ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
-        contactName: _contactController.text.isNotEmpty ? _contactController.text : null,
+        contactName: _contactController.text.isNotEmpty
+            ? _contactController.text
+            : null,
         phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
         email: _emailController.text.isNotEmpty ? _emailController.text : null,
-        address: _addressController.text.isNotEmpty ? _addressController.text : null,
+        address: _addressController.text.isNotEmpty
+            ? _addressController.text
+            : null,
         isActive: _isActive,
         createdAt: widget.supplier?.createdAt ?? DateTime.now(),
         outstandingBalance: widget.supplier?.outstandingBalance ?? 0.0,
@@ -65,7 +80,11 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
         Navigator.pop(context, true);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_controller.errorMessage ?? 'Failed to save supplier')),
+          SnackBar(
+            content: Text(
+              _controller.errorMessage ?? 'Failed to save supplier',
+            ),
+          ),
         );
       }
     }
@@ -86,7 +105,8 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Supplier Name *'),
-                validator: (val) => val == null || val.isEmpty ? 'Name is required' : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Name is required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -108,7 +128,9 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Physical Address'),
+                decoration: const InputDecoration(
+                  labelText: 'Physical Address',
+                ),
                 maxLines: 2,
               ),
               const SizedBox(height: 16),

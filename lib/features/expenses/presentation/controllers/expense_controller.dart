@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/repositories/expense_repository.dart';
@@ -10,7 +11,7 @@ class ExpenseController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Expense> expenses = [];
   ExpenseCategory? currentCategory;
   DateTime? currentStartDate;
@@ -26,7 +27,7 @@ class ExpenseController extends ChangeNotifier {
     currentCategory = category;
     currentStartDate = startDate;
     currentEndDate = endDate;
-    
+
     _setState(ViewState.loading);
     try {
       expenses = await repository.getExpenses(

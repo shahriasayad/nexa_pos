@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/layout/app_shell.dart';
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/expense.dart';
 import '../../data/repositories/mock_expense_repository.dart';
 import '../controllers/expense_controller.dart';
 import 'expense_form_screen.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({super.key});
@@ -49,27 +52,33 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
 
   IconData _getCategoryIcon(ExpenseCategory category) {
     switch (category) {
-      case ExpenseCategory.rent: return Icons.home;
-      case ExpenseCategory.electricity: return Icons.electric_bolt;
-      case ExpenseCategory.internet: return Icons.wifi;
-      case ExpenseCategory.salary: return Icons.attach_money;
-      case ExpenseCategory.transportation: return Icons.directions_car;
-      case ExpenseCategory.maintenance: return Icons.build;
-      case ExpenseCategory.other: return Icons.receipt;
+      case ExpenseCategory.rent:
+        return Icons.home;
+      case ExpenseCategory.electricity:
+        return Icons.electric_bolt;
+      case ExpenseCategory.internet:
+        return Icons.wifi;
+      case ExpenseCategory.salary:
+        return Icons.attach_money;
+      case ExpenseCategory.transportation:
+        return Icons.directions_car;
+      case ExpenseCategory.maintenance:
+        return Icons.build;
+      case ExpenseCategory.other:
+        return Icons.receipt;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Expenses',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openExpenseForm(),
-          ),
-        ],
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openExpenseForm(),
+        ),
+      ],
       child: Column(
         children: [
           Padding(
@@ -97,7 +106,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                         },
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -111,7 +120,10 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               builder: (context, _) {
                 return Text(
                   'Total: \$${_controller.totalExpenses.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
               },
             ),
@@ -124,10 +136,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (_controller.state == ViewState.error) {
-                  return Center(child: Text(_controller.errorMessage ?? 'Error loading expenses'));
+                  return Center(
+                    child: Text(
+                      _controller.errorMessage ?? 'Error loading expenses',
+                    ),
+                  );
                 }
                 if (_controller.state == ViewState.empty) {
-                  return const Center(child: Text('No expenses found for this filter.'));
+                  return const Center(
+                    child: Text('No expenses found for this filter.'),
+                  );
                 }
 
                 return ListView.builder(
@@ -135,17 +153,30 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                   itemBuilder: (context, index) {
                     final expense = _controller.expenses[index];
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                          child: Icon(_getCategoryIcon(expense.category), color: Theme.of(context).primaryColor),
+                          backgroundColor: Theme.of(context).primaryColor
+                              .withValues(alpha: 0.2),
+                          child: Icon(
+                            _getCategoryIcon(expense.category),
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
                         title: Text(expense.title),
-                        subtitle: Text('${expense.date.toString().split(' ')[0]} - ${expense.category.displayName}'),
+                        subtitle: Text(
+                          '${expense.date.toString().split(' ')[0]} - ${expense.category.displayName}',
+                        ),
                         trailing: Text(
                           '-\$${expense.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            color: AppColors.danger,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         onTap: () => _openExpenseForm(expense),
                       ),

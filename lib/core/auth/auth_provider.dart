@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+
 import '../../features/employees/domain/models/employee.dart';
 import '../../features/employees/domain/repositories/employee_repository.dart';
 import '../../features/employees/data/repositories/mock_employee_repository.dart';
 
 class AuthProvider extends ChangeNotifier {
   static final AuthProvider instance = AuthProvider._internal();
-  
+
   final EmployeeRepository repository = MockEmployeeRepository();
   Employee? _currentUser;
-  
+
   AuthProvider._internal() {
     _init();
   }
-  
+
   Future<void> _init() async {
     final emps = await repository.getEmployees();
     if (emps.isNotEmpty) {

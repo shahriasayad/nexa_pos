@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/core/theme/app_typography.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 
 class StatCard extends StatelessWidget {
@@ -34,9 +32,9 @@ class StatCard extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
               ),
               Icon(
                 icon,
@@ -48,17 +46,12 @@ class StatCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             value,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
-                ),
+            style: Theme.of(context).textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: -0.5),
           ),
           if (subtitle != null) ...[
             const SizedBox(height: AppSpacing.xxs),
-            Text(
-              subtitle!,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
           ],
         ],
       ),

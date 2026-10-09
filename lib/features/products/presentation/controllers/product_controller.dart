@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/models/product.dart';
@@ -16,10 +17,10 @@ class ProductController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   List<Product> products = [];
   List<Category> categories = [];
-  
+
   String? searchQuery;
   String? selectedCategoryId;
   StockStatus? selectedStockStatus;
@@ -34,18 +35,20 @@ class ProductController extends ChangeNotifier {
       if (categories.isEmpty) {
         categories = await categoryRepo.getCategories();
       }
-      
+
       var rawProducts = await productRepo.getProducts(
         search: searchQuery,
         categoryId: selectedCategoryId,
       );
 
       products = rawProducts.where((p) {
-        bool matchesStock = selectedStockStatus == null || p.stockStatus == selectedStockStatus;
-        bool matchesActive = isActiveFilter == null || p.isActive == isActiveFilter;
+        bool matchesStock =
+            selectedStockStatus == null || p.stockStatus == selectedStockStatus;
+        bool matchesActive =
+            isActiveFilter == null || p.isActive == isActiveFilter;
         return matchesStock && matchesActive;
       }).toList();
-      
+
       state = products.isEmpty ? ViewState.empty : ViewState.success;
     } catch (e) {
       state = ViewState.error;
@@ -54,12 +57,14 @@ class ProductController extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   void setSearch(String? query) {
-    searchQuery = (query != null && query.trim().isNotEmpty) ? query.trim() : null;
+    searchQuery = (query != null && query.trim().isNotEmpty)
+        ? query.trim()
+        : null;
     loadProducts();
   }
-  
+
   void setCategory(String? categoryId) {
     selectedCategoryId = categoryId;
     loadProducts();
@@ -75,14 +80,13 @@ class ProductController extends ChangeNotifier {
     loadProducts();
   }
 
-
   Future<bool> saveProduct(Product product) async {
     if (!AuthProvider.instance.can(Permission.manageProducts)) {
       errorMessage = 'Permission denied: Cannot manage products.';
       notifyListeners();
       return false;
     }
-    
+
     try {
       if (product.id.isEmpty) {
         await productRepo.addProduct(
@@ -93,7 +97,9 @@ class ProductController extends ChangeNotifier {
           ),
         );
       } else {
-        await productRepo.updateProduct(product.copyWith(updatedAt: DateTime.now()));
+        await productRepo.updateProduct(
+          product.copyWith(updatedAt: DateTime.now()),
+        );
       }
       await loadProducts();
       return true;
@@ -114,7 +120,7 @@ class ProductController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-    
+
     try {
       await productRepo.deleteProduct(id);
       await loadProducts();

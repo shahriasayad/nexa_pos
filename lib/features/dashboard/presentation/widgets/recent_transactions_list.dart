@@ -4,6 +4,7 @@ import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
+
 import '../../domain/models/transaction_summary.dart';
 
 class RecentTransactionsList extends StatelessWidget {
@@ -20,9 +21,7 @@ class RecentTransactionsList extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.all(AppSpacing.md),
-            child: SectionHeader(
-              title: 'Recent Transactions',
-            ),
+            child: SectionHeader(title: 'Recent Transactions'),
           ),
           const Divider(height: 1),
           if (transactions.isEmpty)
@@ -52,12 +51,16 @@ class RecentTransactionsList extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Theme.of(context).dividerColor),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: Icon(
                           isRefund ? Icons.keyboard_return : Icons.receipt_long,
                           size: 20,
-                          color: isRefund ? AppColors.danger : AppColors.textSecondary,
+                          color: isRefund
+                              ? AppColors.danger
+                              : AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.md),
@@ -67,9 +70,8 @@ class RecentTransactionsList extends StatelessWidget {
                           children: [
                             Text(
                               trx.id,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             Text(
                               '${trx.date.hour}:${trx.date.minute.toString().padLeft(2, '0')}',
@@ -87,9 +89,9 @@ class RecentTransactionsList extends StatelessWidget {
                       Text(
                         '\$${trx.total.toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isRefund ? AppColors.danger : null,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: isRefund ? AppColors.danger : null,
+                        ),
                       ),
                     ],
                   ),

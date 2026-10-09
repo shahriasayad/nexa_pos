@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/sale_transaction.dart';
 import '../../domain/repositories/sales_repository.dart';
@@ -10,7 +11,7 @@ class TransactionHistoryController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   List<SaleTransaction> transactions = [];
-  
+
   String? searchId;
   DateTime? startDate;
   DateTime? endDate;
@@ -28,9 +29,11 @@ class TransactionHistoryController extends ChangeNotifier {
         paymentMethod: paymentMethod,
         status: status,
       );
-      
+
       if (searchId != null && searchId!.isNotEmpty) {
-        transactions = transactions.where((t) => t.id.contains(searchId!)).toList();
+        transactions = transactions
+            .where((t) => t.id.contains(searchId!))
+            .toList();
       }
 
       state = transactions.isEmpty ? ViewState.empty : ViewState.success;

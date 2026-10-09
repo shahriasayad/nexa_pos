@@ -9,11 +9,11 @@ class AppTheme {
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
         primary: AppColors.primary,
-        onPrimary: Colors.white,
+        onPrimary: AppColors.white,
         secondary: AppColors.primaryStrong,
-        onSecondary: Colors.white,
+        onSecondary: AppColors.white,
         error: AppColors.danger,
-        onError: Colors.white,
+        onError: AppColors.white,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
         outline: AppColors.border,
@@ -58,13 +58,18 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.sm,
+          ),
           elevation: 0,
-          textStyle: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          textStyle: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -73,8 +78,13 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          textStyle: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          textStyle: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -84,8 +94,13 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
-          textStyle: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.sm,
+          ),
+          textStyle: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       cardTheme: CardThemeData(
@@ -103,26 +118,24 @@ class AppTheme {
         selectedColor: AppColors.primary,
         selectedTileColor: AppColors.primarySoft,
       ),
-      iconTheme: const IconThemeData(
-        color: AppColors.textSecondary,
-        size: 20,
-      ),
+      iconTheme: const IconThemeData(color: AppColors.textSecondary, size: 20),
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
-      textTheme: const TextTheme(
-        displayLarge: AppTypography.display,
-        headlineMedium: AppTypography.pageTitle,
-        titleLarge: AppTypography.sectionTitle,
-        bodyLarge: AppTypography.body,
-        bodyMedium: AppTypography.bodyMedium,
-        bodySmall: AppTypography.secondary,
-      ).apply(
-        displayColor: AppColors.textPrimary,
-        bodyColor: AppColors.textPrimary,
-      ),
+      textTheme:
+          const TextTheme(
+            displayLarge: AppTypography.display,
+            headlineMedium: AppTypography.pageTitle,
+            titleLarge: AppTypography.sectionTitle,
+            bodyLarge: AppTypography.body,
+            bodyMedium: AppTypography.bodyMedium,
+            bodySmall: AppTypography.secondary,
+          ).apply(
+            displayColor: AppColors.textPrimary,
+            bodyColor: AppColors.textPrimary,
+          ),
     );
   }
 
@@ -131,11 +144,11 @@ class AppTheme {
       colorScheme: const ColorScheme(
         brightness: Brightness.dark,
         primary: AppColors.primary,
-        onPrimary: Colors.white,
+        onPrimary: AppColors.white,
         secondary: AppColors.primaryStrong,
-        onSecondary: Colors.white,
+        onSecondary: AppColors.white,
         error: AppColors.danger,
-        onError: Colors.white,
+        onError: AppColors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
         outline: AppColors.darkBorder,
@@ -174,19 +187,26 @@ class AppTheme {
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,
         ),
-        hintStyle: AppTypography.darkSecondary.copyWith(color: AppColors.darkTextMuted),
+        hintStyle: AppTypography.darkSecondary.copyWith(
+          color: AppColors.darkTextMuted,
+        ),
         labelStyle: AppTypography.darkBodyMedium,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.sm,
+          ),
           elevation: 0,
-          textStyle: AppTypography.darkBodyMedium.copyWith(fontWeight: FontWeight.w600),
+          textStyle: AppTypography.darkBodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -195,8 +215,13 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          textStyle: AppTypography.darkBodyMedium.copyWith(fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          textStyle: AppTypography.darkBodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -206,8 +231,13 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.normal),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
-          textStyle: AppTypography.darkBodyMedium.copyWith(fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.sm,
+          ),
+          textStyle: AppTypography.darkBodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       cardTheme: CardThemeData(
@@ -223,7 +253,8 @@ class AppTheme {
         iconColor: AppColors.darkTextSecondary,
         textColor: AppColors.darkTextPrimary,
         selectedColor: AppColors.primary,
-        selectedTileColor: AppColors.darkSurfaceMuted, // Better contrast in dark mode
+        selectedTileColor:
+            AppColors.darkSurfaceMuted, // Better contrast in dark mode
       ),
       iconTheme: const IconThemeData(
         color: AppColors.darkTextSecondary,
@@ -234,17 +265,18 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
-      textTheme: const TextTheme(
-        displayLarge: AppTypography.darkDisplay,
-        headlineMedium: AppTypography.darkPageTitle,
-        titleLarge: AppTypography.darkSectionTitle,
-        bodyLarge: AppTypography.darkBody,
-        bodyMedium: AppTypography.darkBodyMedium,
-        bodySmall: AppTypography.darkSecondary,
-      ).apply(
-        displayColor: AppColors.darkTextPrimary,
-        bodyColor: AppColors.darkTextPrimary,
-      ),
+      textTheme:
+          const TextTheme(
+            displayLarge: AppTypography.darkDisplay,
+            headlineMedium: AppTypography.darkPageTitle,
+            titleLarge: AppTypography.darkSectionTitle,
+            bodyLarge: AppTypography.darkBody,
+            bodyMedium: AppTypography.darkBodyMedium,
+            bodySmall: AppTypography.darkSecondary,
+          ).apply(
+            displayColor: AppColors.darkTextPrimary,
+            bodyColor: AppColors.darkTextPrimary,
+          ),
     );
   }
 }

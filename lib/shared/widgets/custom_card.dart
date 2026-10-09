@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget child;

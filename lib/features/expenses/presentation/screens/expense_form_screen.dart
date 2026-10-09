@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/expense.dart';
 import '../../data/repositories/mock_expense_repository.dart';
 import '../controllers/expense_controller.dart';
+
+import 'package:nexa_pos/core/theme/app_colors.dart';
 
 class ExpenseFormScreen extends StatefulWidget {
   final Expense? expense;
@@ -27,7 +30,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     super.initState();
     _controller = ExpenseController(repository: MockExpenseRepository());
     _titleController = TextEditingController(text: widget.expense?.title ?? '');
-    _amountController = TextEditingController(text: widget.expense?.amount.toString() ?? '');
+    _amountController = TextEditingController(
+      text: widget.expense?.amount.toString() ?? '',
+    );
     _noteController = TextEditingController(text: widget.expense?.note ?? '');
     _category = widget.expense?.category ?? ExpenseCategory.other;
     _date = widget.expense?.date ?? DateTime.now();
@@ -67,7 +72,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       }
 
       final expense = Expense(
-        id: widget.expense?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id:
+            widget.expense?.id ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text,
         amount: amount,
         category: _category,
@@ -81,30 +88,38 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         Navigator.pop(context, true);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_controller.errorMessage ?? 'Failed to save expense')),
+          SnackBar(
+            content: Text(_controller.errorMessage ?? 'Failed to save expense'),
+          ),
         );
       }
     }
   }
-  
+
   void _delete() async {
     if (widget.expense == null) return;
-    
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Expense?'),
         content: const Text('Are you sure you want to delete this expense?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true), 
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.danger),
+            ),
           ),
         ],
       ),
     );
-    
+
     if (confirm == true && mounted) {
       final success = await _controller.deleteExpense(widget.expense!.id);
       if (success && mounted) {
@@ -121,7 +136,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         actions: [
           if (widget.expense != null)
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.redAccent),
+              icon: const Icon(Icons.delete, color: AppColors.darkDanger),
               onPressed: _delete,
             ),
         ],
@@ -136,18 +151,25 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Expense Title *'),
-                validator: (val) => val == null || val.isEmpty ? 'Title is required' : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Title is required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Amount *', prefixText: '\$'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (val) => val == null || val.isEmpty ? 'Amount is required' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Amount *',
+                  prefixText: '\$',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Amount is required' : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<ExpenseCategory>(
-                value: _category,
+                initialValue: _category,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: ExpenseCategory.values.map((cat) {
                   return DropdownMenuItem(
@@ -163,14 +185,18 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Date'),
-                subtitle: Text('${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}'),
+                subtitle: Text(
+                  '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _pickDate,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _noteController,
-                decoration: const InputDecoration(labelText: 'Notes (Optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                ),
                 maxLines: 3,
               ),
               const SizedBox(height: 24),

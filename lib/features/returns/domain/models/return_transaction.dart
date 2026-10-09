@@ -1,12 +1,6 @@
 import '../../../pos/domain/models/sale_transaction.dart';
 
-enum ReturnReason {
-  changedMind,
-  damaged,
-  wrongProduct,
-  defective,
-  other
-}
+enum ReturnReason { changedMind, damaged, wrongProduct, defective, other }
 
 class ReturnItem {
   final String productId;

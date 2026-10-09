@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../features/pos/domain/models/sale_transaction.dart';
 import '../../../../features/pos/domain/repositories/sales_repository.dart';
@@ -22,7 +23,7 @@ class ReturnController extends ChangeNotifier {
 
   ViewState state = ViewState.initial;
   String? errorMessage;
-  
+
   Map<String, int> returnQuantities = {};
   ReturnReason selectedReason = ReturnReason.changedMind;
   PaymentMethod refundMethod = PaymentMethod.cash;
@@ -66,18 +67,20 @@ class ReturnController extends ChangeNotifier {
 
     try {
       final refundAmount = calculateRefundAmount(sale);
-      
+
       final returnItems = <ReturnItem>[];
       for (var item in sale.items) {
         final qty = returnQuantities[item.productId] ?? 0;
         if (qty > 0) {
-          returnItems.add(ReturnItem(
-            productId: item.productId,
-            productName: item.productName,
-            unitPrice: item.unitPrice,
-            quantity: qty,
-            refundAmount: qty * item.unitPrice,
-          ));
+          returnItems.add(
+            ReturnItem(
+              productId: item.productId,
+              productName: item.productName,
+              unitPrice: item.unitPrice,
+              quantity: qty,
+              refundAmount: qty * item.unitPrice,
+            ),
+          );
         }
       }
 
@@ -99,19 +102,23 @@ class ReturnController extends ChangeNotifier {
         final product = await productRepo.getProductById(rItem.productId);
         if (product != null) {
           final newStock = product.stockQuantity + rItem.quantity;
-          await productRepo.updateProduct(product.copyWith(stockQuantity: newStock));
-          
-          await inventoryRepo.logMovement(StockMovement(
-            id: 'MOV-${DateTime.now().millisecondsSinceEpoch}-${rItem.productId}',
-            productId: rItem.productId,
-            quantityChange: rItem.quantity,
-            type: StockMovementType.returnItem,
-            previousStock: product.stockQuantity,
-            newStock: newStock,
-            reason: 'Return: ${selectedReason.name}',
-            referenceId: returnTx.id,
-            timestamp: DateTime.now(),
-          ));
+          await productRepo.updateProduct(
+            product.copyWith(stockQuantity: newStock),
+          );
+
+          await inventoryRepo.logMovement(
+            StockMovement(
+              id: 'MOV-${DateTime.now().millisecondsSinceEpoch}-${rItem.productId}',
+              productId: rItem.productId,
+              quantityChange: rItem.quantity,
+              type: StockMovementType.returnItem,
+              previousStock: product.stockQuantity,
+              newStock: newStock,
+              reason: 'Return: ${selectedReason.name}',
+              referenceId: returnTx.id,
+              timestamp: DateTime.now(),
+            ),
+          );
         }
       }
 

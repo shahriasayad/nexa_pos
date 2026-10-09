@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/customer.dart';
 import '../../data/repositories/mock_customer_repository.dart';
@@ -34,10 +35,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   void _openCustomerForm([Customer? customer]) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CustomerFormScreen(
-        customer: customer,
-        controller: _controller,
-      )),
+      MaterialPageRoute(
+        builder: (context) =>
+            CustomerFormScreen(customer: customer, controller: _controller),
+      ),
     );
     if (result == true) {
       _controller.loadCustomers();
@@ -47,14 +48,13 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      
       title: 'Customers',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openCustomerForm(),
-          )
-        ],
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openCustomerForm(),
+        ),
+      ],
       child: Column(
         children: [
           Padding(
@@ -103,7 +103,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             return ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
               title: Text(customer.name),
-              subtitle: Text(customer.phone ?? customer.email ?? 'No contact info'),
+              subtitle: Text(
+                customer.phone ?? customer.email ?? 'No contact info',
+              ),
               trailing: Text('\$${customer.totalSpending.toStringAsFixed(2)}'),
               onTap: () => _openCustomerForm(customer),
             );

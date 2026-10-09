@@ -3,6 +3,7 @@ import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
+
 import '../../../domain/models/product.dart';
 
 class ProductListTile extends StatelessWidget {
@@ -29,7 +30,10 @@ class ProductListTile extends StatelessWidget {
             bottom: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
         child: ResponsiveLayout.isMobile(context)
             ? _buildMobileRow(context)
             : _buildDesktopRow(context),
@@ -47,7 +51,8 @@ class ProductListTile extends StatelessWidget {
             children: [
               Text(
                 product.name,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 2),
               Text(product.sku, style: Theme.of(context).textTheme.bodySmall),
@@ -65,7 +70,8 @@ class ProductListTile extends StatelessWidget {
           flex: 1,
           child: Text(
             '\$${product.sellingPrice.toStringAsFixed(2)}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
@@ -75,10 +81,7 @@ class ProductListTile extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: _buildStockIndicator(context),
-        ),
+        Expanded(flex: 1, child: _buildStockIndicator(context)),
         Expanded(
           flex: 1,
           child: StatusBadge(
@@ -104,15 +107,20 @@ class ProductListTile extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
-                  Text('SKU: ${product.sku}', style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    'SKU: ${product.sku}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
             Text(
               '\$${product.sellingPrice.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -158,9 +166,13 @@ class ProductListTile extends StatelessWidget {
         Text(
           '${product.stockQuantity}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: product.stockStatus != StockStatus.inStock ? FontWeight.bold : FontWeight.normal,
-                color: product.stockStatus == StockStatus.outOfStock ? AppColors.danger : null,
-              ),
+            fontWeight: product.stockStatus != StockStatus.inStock
+                ? FontWeight.bold
+                : FontWeight.normal,
+            color: product.stockStatus == StockStatus.outOfStock
+                ? AppColors.danger
+                : null,
+          ),
         ),
       ],
     );
@@ -176,7 +188,11 @@ class ProductListTile extends StatelessWidget {
           tooltip: 'Edit Product',
         ),
         IconButton(
-          icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+          icon: const Icon(
+            Icons.delete_outline,
+            size: 20,
+            color: AppColors.danger,
+          ),
           onPressed: onDelete,
           tooltip: 'Delete Product',
         ),

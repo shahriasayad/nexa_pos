@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../domain/models/customer.dart';
 import '../../domain/repositories/customer_repository.dart';

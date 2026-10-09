@@ -29,10 +29,19 @@ class MockExpenseRepository implements ExpenseRepository {
     var results = _expenses.toList();
 
     if (startDate != null) {
-      results = results.where((e) => e.date.isAfter(startDate.subtract(const Duration(seconds: 1)))).toList();
+      results = results
+          .where(
+            (e) =>
+                e.date.isAfter(startDate.subtract(const Duration(seconds: 1))),
+          )
+          .toList();
     }
     if (endDate != null) {
-      results = results.where((e) => e.date.isBefore(endDate.add(const Duration(seconds: 1)))).toList();
+      results = results
+          .where(
+            (e) => e.date.isBefore(endDate.add(const Duration(seconds: 1))),
+          )
+          .toList();
     }
     if (category != null) {
       results = results.where((e) => e.category == category).toList();

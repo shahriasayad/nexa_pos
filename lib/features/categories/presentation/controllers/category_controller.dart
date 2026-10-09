@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/state/view_state.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/models/category.dart';
@@ -35,10 +36,16 @@ class CategoryController extends ChangeNotifier {
     try {
       if (category.id.isEmpty) {
         await categoryRepo.addCategory(
-          category.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString(), createdAt: DateTime.now(), updatedAt: DateTime.now()),
+          category.copyWith(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
         );
       } else {
-        await categoryRepo.updateCategory(category.copyWith(updatedAt: DateTime.now()));
+        await categoryRepo.updateCategory(
+          category.copyWith(updatedAt: DateTime.now()),
+        );
       }
       await loadCategories();
       return true;

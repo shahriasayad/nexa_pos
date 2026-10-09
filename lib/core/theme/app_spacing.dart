@@ -6,7 +6,7 @@ class AppSpacing {
   static const double lg = 20.0;
   static const double xl = 24.0;
   static const double xxl = 32.0;
-  
+
   static const double desktopPagePadding = 24.0;
   static const double mobilePagePadding = 16.0;
   static const double sectionGap = 24.0;

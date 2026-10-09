@@ -13,7 +13,7 @@ class MockCustomerRepository implements CustomerRepository {
         email: 'john@example.com',
         totalSpending: 250.0,
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      )
+      ),
     );
     _customers.add(
       Customer(
@@ -22,7 +22,7 @@ class MockCustomerRepository implements CustomerRepository {
         phone: '987-654-3210',
         totalSpending: 50.0,
         createdAt: DateTime.now().subtract(const Duration(days: 15)),
-      )
+      ),
     );
   }
 
@@ -32,12 +32,12 @@ class MockCustomerRepository implements CustomerRepository {
     if (searchQuery == null || searchQuery.isEmpty) {
       return List.unmodifiable(_customers);
     }
-    
+
     final query = searchQuery.toLowerCase();
     return _customers.where((c) {
       return c.name.toLowerCase().contains(query) ||
-             (c.phone?.contains(query) ?? false) ||
-             (c.email?.toLowerCase().contains(query) ?? false);
+          (c.phone?.contains(query) ?? false) ||
+          (c.email?.toLowerCase().contains(query) ?? false);
     }).toList();
   }
 
