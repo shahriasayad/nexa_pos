@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+
 class CustomTextField extends StatelessWidget {
   final String label;
   final String? initialValue;
@@ -14,6 +16,8 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? hintText;
+  final String? helperText;
+  final bool enabled;
 
   const CustomTextField({
     super.key,
@@ -30,6 +34,8 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.hintText,
+    this.helperText,
+    this.enabled = true,
   });
 
   @override
@@ -39,14 +45,20 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       readOnly: readOnly,
+      enabled: enabled,
       obscureText: obscureText,
       maxLines: maxLines,
+      style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        border: const OutlineInputBorder(),
+        helperText: helperText,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm + 2,
+        ),
       ),
       validator: validator,
       onChanged: onChanged,

@@ -19,4 +19,5 @@ class AppRadius {
   static const double normal = 10.0;
   static const double card = 12.0;
   static const double large = 16.0;
+  static const double circular = 999.0;
 }

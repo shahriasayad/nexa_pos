@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
+import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
+import 'package:nexa_pos/features/products/domain/models/product.dart';
+import 'package:nexa_pos/features/products/presentation/controllers/product_controller.dart';
+import 'package:nexa_pos/features/products/presentation/screens/product_details_screen.dart';
+import 'package:nexa_pos/features/products/presentation/screens/product_form_screen.dart';
+import 'package:nexa_pos/features/products/presentation/screens/widgets/product_filter_bar.dart';
+import 'package:nexa_pos/features/products/presentation/screens/widgets/product_list_tile.dart';
+import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/empty_state_view.dart';
+import 'package:nexa_pos/shared/widgets/error_view.dart';
+import 'package:nexa_pos/shared/widgets/loading_view.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
-
-import '../../../../core/state/view_state.dart';
-import '../../../../shared/widgets/error_view.dart';
-import '../../../../shared/widgets/loading_view.dart';
-import '../../../../shared/widgets/empty_state_view.dart';
-import '../../../../shared/widgets/custom_button.dart';
-import '../../domain/models/product.dart';
-import '../controllers/product_controller.dart';
-import '../../data/repositories/mock_product_repository.dart';
-import '../../../categories/data/repositories/mock_category_repository.dart';
-import 'product_form_screen.dart';
-import 'product_details_screen.dart';
-
-import '../../../../core/layout/app_shell.dart';
-import 'widgets/product_filter_bar.dart';
-import 'widgets/product_list_tile.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -76,11 +74,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
         CustomButton(
           label: 'Add Product',
           icon: Icons.add,
+          height: 38,
           onPressed: () => _navigateToForm(),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: 8,
-          ),
         ),
       ],
       child: ListenableBuilder(
@@ -90,7 +85,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted && _controller.errorMessage != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(_controller.errorMessage!)),
+                  SnackBar(
+                    content: Text(_controller.errorMessage!),
+                    backgroundColor: AppColors.danger,
+                  ),
                 );
                 _controller.clearError();
               }
@@ -126,7 +124,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         return const LoadingView(message: 'Loading products...');
       case ViewState.error:
         return ErrorView(
-          message: 'Failed to load',
+          message: _controller.errorMessage ?? 'Failed to load products',
           onRetry: _controller.loadProducts,
         );
       case ViewState.empty:
@@ -165,26 +163,31 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildTableHeader() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        vertical: AppSpacing.sm + 2,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted,
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
         ),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Expanded(flex: 3, child: _HeaderCell('Product')),
-          Expanded(flex: 2, child: _HeaderCell('Category')),
-          Expanded(flex: 1, child: _HeaderCell('Price')),
-          Expanded(flex: 1, child: _HeaderCell('Cost')),
-          Expanded(flex: 1, child: _HeaderCell('Stock')),
-          Expanded(flex: 1, child: _HeaderCell('Status')),
-          const SizedBox(width: 80), // Actions space
+          Expanded(flex: 3, child: _HeaderCell('PRODUCT')),
+          Expanded(flex: 2, child: _HeaderCell('CATEGORY')),
+          Expanded(flex: 1, child: _HeaderCell('PRICE')),
+          Expanded(flex: 1, child: _HeaderCell('COST')),
+          Expanded(flex: 1, child: _HeaderCell('STOCK')),
+          Expanded(flex: 1, child: _HeaderCell('STATUS')),
+          SizedBox(width: 80, child: _HeaderCell('ACTIONS', alignment: TextAlign.right)),
         ],
       ),
     );
@@ -193,15 +196,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
 class _HeaderCell extends StatelessWidget {
   final String text;
-  const _HeaderCell(this.text);
+  final TextAlign alignment;
+
+  const _HeaderCell(this.text, {this.alignment = TextAlign.left});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Text(
       text,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+      textAlign: alignment,
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        fontSize: 11,
+        letterSpacing: 0.6,
+        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
       ),
     );
   }

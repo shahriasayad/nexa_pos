@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/navigation/app_router.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
-import 'package:nexa_pos/shared/widgets/section_header.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
 
 import '../../domain/models/transaction_summary.dart';
@@ -14,30 +14,92 @@ class RecentTransactionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return CustomCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: SectionHeader(title: 'Recent Transactions'),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_long_outlined, size: 18),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      'Recent Transactions',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, AppRoutes.transactions);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('View All', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
           ),
-          const Divider(height: 1),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
           if (transactions.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.xl),
-              child: Center(child: Text('No recent transactions')),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.receipt_outlined,
+                      size: 28,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'No recent transactions recorded',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             )
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: transactions.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                color: isDark ? AppColors.darkBorder : AppColors.border,
+              ),
               itemBuilder: (context, index) {
                 final trx = transactions[index];
                 final isRefund = trx.status.toLowerCase() == 'refunded';
+                final timeFormatted =
+                    '${trx.date.hour.toString().padLeft(2, '0')}:${trx.date.minute.toString().padLeft(2, '0')}';
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
@@ -46,51 +108,57 @@ class RecentTransactionsList extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: isRefund
+                              ? AppColors.danger.withValues(alpha: 0.1)
+                              : AppColors.primarySoft,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Theme.of(context).dividerColor,
-                          ),
                         ),
                         child: Icon(
-                          isRefund ? Icons.keyboard_return : Icons.receipt_long,
-                          size: 20,
-                          color: isRefund
-                              ? AppColors.danger
-                              : AppColors.textSecondary,
+                          isRefund ? Icons.keyboard_return : Icons.check_circle_outline,
+                          size: 16,
+                          color: isRefund ? AppColors.danger : AppColors.primary,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              trx.id,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              'TRX-${trx.id.length > 8 ? trx.id.substring(trx.id.length - 8) : trx.id}',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
+                            const SizedBox(height: 2),
                             Text(
-                              '${trx.date.hour}:${trx.date.minute.toString().padLeft(2, '0')}',
-                              style: Theme.of(context).textTheme.bodySmall,
+                              timeFormatted,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? AppColors.darkTextMuted
+                                    : AppColors.textMuted,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
                       StatusBadge(
-                        label: trx.status,
+                        label: trx.status.toUpperCase(),
                         type: isRefund ? BadgeType.danger : BadgeType.success,
                       ),
                       const SizedBox(width: AppSpacing.md),
                       Text(
-                        '\$${trx.total.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isRefund ? AppColors.danger : null,
+                        '${isRefund ? '-' : ''}\$${trx.total.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isRefund
+                              ? AppColors.danger
+                              : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
                         ),
                       ),
                     ],

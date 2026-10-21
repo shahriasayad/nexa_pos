@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/products/domain/models/product.dart';
+import 'package:nexa_pos/features/products/presentation/controllers/product_controller.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/custom_text_field.dart';
 import 'package:nexa_pos/shared/widgets/section_header.dart';
-
-import '../../../../core/layout/app_shell.dart';
-import '../../domain/models/product.dart';
-import '../controllers/product_controller.dart';
 
 class ProductFormScreen extends StatefulWidget {
   final ProductController controller;
@@ -42,9 +42,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void initState() {
     super.initState();
     if (widget.productId != null) {
-      _existingProduct = widget.controller.products.firstWhere(
+      final matches = widget.controller.products.where(
         (p) => p.id == widget.productId,
       );
+      if (matches.isNotEmpty) {
+        _existingProduct = matches.first;
+      }
     }
 
     _nameController = TextEditingController(text: _existingProduct?.name ?? '');
@@ -53,16 +56,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       text: _existingProduct?.barcode ?? '',
     );
     _purchasePriceController = TextEditingController(
-      text: _existingProduct?.purchasePrice.toString() ?? '',
+      text: _existingProduct?.purchasePrice.toStringAsFixed(2) ?? '',
     );
     _sellingPriceController = TextEditingController(
-      text: _existingProduct?.sellingPrice.toString() ?? '',
+      text: _existingProduct?.sellingPrice.toStringAsFixed(2) ?? '',
     );
     _stockController = TextEditingController(
       text: _existingProduct?.stockQuantity.toString() ?? '',
     );
     _minStockController = TextEditingController(
-      text: _existingProduct?.minimumStock.toString() ?? '',
+      text: _existingProduct?.minimumStock.toString() ?? '5',
     );
 
     _categoryId = _existingProduct?.categoryId;
@@ -84,12 +87,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       final product = Product(
-        id:
-            _existingProduct?.id ??
+        id: _existingProduct?.id ??
             DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _nameController.text,
-        sku: _skuController.text,
-        barcode: _barcodeController.text,
+        name: _nameController.text.trim(),
+        sku: _skuController.text.trim(),
+        barcode: _barcodeController.text.trim(),
         categoryId: _categoryId!,
         purchasePrice: double.parse(_purchasePriceController.text),
         sellingPrice: double.parse(_sellingPriceController.text),
@@ -100,11 +102,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         updatedAt: DateTime.now(),
       );
 
-      if (_existingProduct != null) {
-        await widget.controller.saveProduct(product);
-      } else {
-        await widget.controller.saveProduct(product);
-      }
+      await widget.controller.saveProduct(product);
 
       if (mounted) Navigator.pop(context);
     }
@@ -112,35 +110,54 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _existingProduct != null ? 'Edit Product' : 'Add Product';
+    final title = _existingProduct != null ? 'Edit Product' : 'Add New Product';
 
     return AppShell(
       title: title,
+      showBottomNav: false,
       actions: [
         CustomButton(
+          label: 'Cancel',
+          variant: CustomButtonVariant.outline,
+          height: 38,
+          onPressed: () => Navigator.pop(context),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        CustomButton(
           label: 'Save Product',
+          icon: Icons.check,
+          height: 38,
           onPressed: _submit,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: 8,
-          ),
         ),
       ],
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildProductInformation(),
-                const SizedBox(height: AppSpacing.xl),
-                _buildPricing(),
-                const SizedBox(height: AppSpacing.xl),
-                _buildInventory(),
-              ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildProductIdentityCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildPricingCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildInventoryCard(),
+                  const SizedBox(height: AppSpacing.xl),
+                  CustomButton(
+                    label: _existingProduct != null
+                        ? 'Update Product Details'
+                        : 'Create Product',
+                    icon: Icons.save_outlined,
+                    isFullWidth: true,
+                    height: 46,
+                    fontSize: 15,
+                    onPressed: _submit,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -148,78 +165,121 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
-  Widget _buildProductInformation() {
+  Widget _buildProductIdentityCard() {
     return CustomCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(title: 'Product Information'),
+          const SizedBox(height: AppSpacing.sm),
           CustomTextField(
             label: 'Product Name *',
+            hintText: 'e.g. Wireless Barcode Scanner',
             controller: _nameController,
-            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+            validator: (v) => v == null || v.trim().isEmpty ? 'Product name is required' : null,
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: CustomTextField(
-                  label: 'SKU *',
+                  label: 'SKU (Stock Keeping Unit) *',
+                  hintText: 'e.g. ELEC-001',
                   controller: _skuController,
-                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                  validator: (v) => v == null || v.trim().isEmpty ? 'SKU is required' : null,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: CustomTextField(
-                  label: 'Barcode',
+                  label: 'Barcode (UPC / EAN)',
+                  hintText: 'e.g. 890123456789',
                   controller: _barcodeController,
+                  prefixIcon: const Icon(Icons.qr_code_scanner, size: 18),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Category *'),
+            decoration: const InputDecoration(
+              labelText: 'Category *',
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+            ),
             initialValue: _categoryId,
             items: widget.controller.categories
                 .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
                 .toList(),
             onChanged: (val) => setState(() => _categoryId = val),
-            validator: (v) => v == null ? 'Required' : null,
+            validator: (v) => v == null ? 'Please select a category' : null,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPricing() {
+  Widget _buildPricingCard() {
+    final cost = double.tryParse(_purchasePriceController.text) ?? 0.0;
+    final price = double.tryParse(_sellingPriceController.text) ?? 0.0;
+    final margin = price > 0 ? ((price - cost) / price * 100) : 0.0;
+
     return CustomCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: 'Pricing'),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SectionHeader(title: 'Pricing & Margins'),
+              if (price > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: margin >= 20 ? AppColors.primarySoft : AppColors.surfaceMuted,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Margin: ${margin.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: margin >= 20 ? AppColors.primaryStrong : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: CustomTextField(
-                  label: 'Purchase Price *',
+                  label: 'Purchase Cost (\$)*',
+                  hintText: '0.00',
                   controller: _purchasePriceController,
-                  keyboardType: TextInputType.number,
-                  prefixIcon: const Icon(Icons.attach_money),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: const Icon(Icons.attach_money, size: 18),
+                  onChanged: (_) => setState(() {}),
                   validator: (v) =>
-                      double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                      double.tryParse(v ?? '') == null ? 'Enter valid cost' : null,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: CustomTextField(
-                  label: 'Selling Price *',
+                  label: 'Selling Price (\$)*',
+                  hintText: '0.00',
                   controller: _sellingPriceController,
-                  keyboardType: TextInputType.number,
-                  prefixIcon: const Icon(Icons.attach_money),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: const Icon(Icons.attach_money, size: 18),
+                  onChanged: (_) => setState(() {}),
                   validator: (v) =>
-                      double.tryParse(v ?? '') == null ? 'Invalid' : null,
+                      double.tryParse(v ?? '') == null ? 'Enter valid price' : null,
                 ),
               ),
             ],
@@ -229,42 +289,51 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
-  Widget _buildInventory() {
+  Widget _buildInventoryCard() {
     return CustomCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: 'Inventory & Status'),
+          const SectionHeader(title: 'Inventory & Stock Controls'),
+          const SizedBox(height: AppSpacing.sm),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: CustomTextField(
-                  label: 'Initial Stock *',
+                  label: 'Current Quantity *',
+                  hintText: '0',
                   controller: _stockController,
                   keyboardType: TextInputType.number,
                   validator: (v) =>
-                      int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                      int.tryParse(v ?? '') == null ? 'Enter valid quantity' : null,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: CustomTextField(
-                  label: 'Minimum Stock *',
+                  label: 'Minimum Stock Alert Threshold *',
+                  hintText: '5',
                   controller: _minStockController,
                   keyboardType: TextInputType.number,
                   validator: (v) =>
-                      int.tryParse(v ?? '') == null ? 'Invalid' : null,
+                      int.tryParse(v ?? '') == null ? 'Enter valid threshold' : null,
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           SwitchListTile(
-            title: const Text('Product is Active'),
+            title: const Text(
+              'Active Product',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
             subtitle: const Text(
-              'Inactive products are hidden from POS checkout',
+              'Active products are available in POS checkout catalog',
+              style: TextStyle(fontSize: 12),
             ),
             value: _isActive,
+            activeTrackColor: AppColors.primary,
             onChanged: (v) => setState(() => _isActive = v),
             contentPadding: EdgeInsets.zero,
           ),

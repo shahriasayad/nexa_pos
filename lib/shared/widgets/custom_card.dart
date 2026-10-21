@@ -8,6 +8,9 @@ class CustomCard extends StatelessWidget {
   final Color? color;
   final double? width;
   final double? height;
+  final BorderSide? border;
+  final BorderRadius? borderRadius;
+  final double elevation;
 
   const CustomCard({
     super.key,
@@ -17,13 +20,27 @@ class CustomCard extends StatelessWidget {
     this.color,
     this.width,
     this.height,
+    this.border,
+    this.borderRadius,
+    this.elevation = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(AppRadius.card);
     final card = Card(
       color: color,
+      elevation: elevation,
       margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: effectiveRadius,
+        side: border ??
+            BorderSide(
+              color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE2E8E4),
+              width: 1,
+            ),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Container(
         width: width,
         height: height,
@@ -35,7 +52,7 @@ class CustomCard extends StatelessWidget {
     if (onTap != null) {
       return InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.card),
+        borderRadius: effectiveRadius,
         child: card,
       );
     }

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-
-import '../../../../shared/widgets/responsive_layout.dart';
-import '../../../products/data/repositories/mock_product_repository.dart';
-import '../../../inventory/data/repositories/mock_inventory_repository.dart';
-import '../../data/repositories/mock_sales_repository.dart';
-import '../../../customers/data/repositories/mock_customer_repository.dart';
-import '../controllers/pos_controller.dart';
-import 'checkout_dialog.dart';
-import 'receipt_dialog.dart';
-import 'customer_selection_dialog.dart';
-import '../../../../core/layout/app_shell.dart';
-import '../../../customers/domain/models/customer.dart';
-import 'widgets/product_list_panel.dart';
-import 'widgets/cart_panel.dart';
+import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/customers/data/repositories/mock_customer_repository.dart';
+import 'package:nexa_pos/features/customers/domain/models/customer.dart';
+import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
+import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
+import 'package:nexa_pos/features/pos/presentation/controllers/pos_controller.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/checkout_dialog.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/customer_selection_dialog.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/receipt_dialog.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/widgets/cart_panel.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/widgets/product_list_panel.dart';
+import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
+import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 
 class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
@@ -21,9 +22,10 @@ class PosScreen extends StatefulWidget {
   State<PosScreen> createState() => _PosScreenState();
 }
 
-class _PosScreenState extends State<PosScreen> {
+class _PosScreenState extends State<PosScreen> with SingleTickerProviderStateMixin {
   late PosController _controller;
   final TextEditingController _searchController = TextEditingController();
+  late TabController _tabController;
 
   @override
   void initState() {
@@ -35,10 +37,12 @@ class _PosScreenState extends State<PosScreen> {
       customerRepo: MockCustomerRepository(),
     );
     _controller.searchProducts(null);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _searchController.dispose();
     _controller.dispose();
     super.dispose();
@@ -75,7 +79,19 @@ class _PosScreenState extends State<PosScreen> {
   Widget build(BuildContext context) {
     return AppShell(
       title: 'Point of Sale',
-
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.person_add_outlined),
+          tooltip: 'Select Customer',
+          onPressed: _showCustomerSelection,
+        ),
+        if (_controller.cart.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Clear Cart',
+            onPressed: _controller.clearCart,
+          ),
+      ],
       child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -83,7 +99,10 @@ class _PosScreenState extends State<PosScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted && _controller.errorMessage != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(_controller.errorMessage!)),
+                  SnackBar(
+                    content: Text(_controller.errorMessage!),
+                    backgroundColor: AppColors.danger,
+                  ),
                 );
                 _controller.clearError();
               }
@@ -101,32 +120,168 @@ class _PosScreenState extends State<PosScreen> {
   }
 
   Widget _buildMobileLayout() {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          const TabBar(
+    final totalItemsCount =
+        _controller.cart.fold<int>(0, (sum, item) => sum + item.quantity);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      children: [
+        // Mobile Tab Bar
+        Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: TabBar(
+            controller: _tabController,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.textSecondary,
+            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
-              Tab(text: 'Products'),
-              Tab(text: 'Cart'),
+              const Tab(
+                icon: Icon(Icons.grid_view_outlined, size: 20),
+                text: 'Catalog',
+              ),
+              Tab(
+                icon: Badge(
+                  isLabelVisible: totalItemsCount > 0,
+                  label: Text('$totalItemsCount'),
+                  child: const Icon(Icons.shopping_cart_outlined, size: 20),
+                ),
+                text: 'Cart (${_controller.cart.length})',
+              ),
             ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [_buildProductList(), _buildCartPanel()],
-            ),
+        ),
+
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // Tab 1: Catalog
+              Stack(
+                children: [
+                  Positioned.fill(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: _controller.cart.isNotEmpty ? 64.0 : 0.0,
+                      ),
+                      child: _buildProductList(),
+                    ),
+                  ),
+                  // Sticky bottom bar when items in cart
+                  if (_controller.cart.isNotEmpty)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.darkSurface
+                              : AppColors.surface,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              offset: const Offset(0, -2),
+                              blurRadius: 8,
+                            ),
+                          ],
+                          border: Border(
+                            top: BorderSide(
+                              color: isDark
+                                  ? AppColors.darkBorder
+                                  : AppColors.border,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$totalItemsCount items in cart',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppColors.darkTextMuted
+                                        : AppColors.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  '\$${_controller.grandTotal.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                _tabController.animateTo(1);
+                              },
+                              icon: const Icon(Icons.shopping_cart_checkout, size: 18),
+                              label: const Text('View Cart'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                foregroundColor: AppColors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+
+              // Tab 2: Cart Panel
+              _buildCartPanel(),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildDesktopLayout() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Row(
       children: [
-        Expanded(flex: 2, child: _buildProductList()),
-        const VerticalDivider(width: 1),
-        Expanded(flex: 1, child: _buildCartPanel()),
+        // Left main workspace: Products Catalog (flex: 3)
+        Expanded(
+          flex: 3,
+          child: _buildProductList(),
+        ),
+
+        // Vertical divider
+        VerticalDivider(
+          width: 1,
+          thickness: 1,
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
+
+        // Right workspace: Dedicated Checkout Panel (flex: 2)
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 360, maxWidth: 460),
+          child: SizedBox(
+            width: 380,
+            child: _buildCartPanel(),
+          ),
+        ),
       ],
     );
   }

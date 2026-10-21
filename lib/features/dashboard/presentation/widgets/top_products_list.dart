@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
-import 'package:nexa_pos/shared/widgets/section_header.dart';
+import 'package:nexa_pos/shared/widgets/status_badge.dart';
 
 import '../../domain/models/product_summary.dart';
 
@@ -20,27 +20,84 @@ class TopProductsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return CustomCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SectionHeader(title: title),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isLowStock ? Icons.warning_amber_rounded : Icons.star_outline_rounded,
+                  size: 18,
+                  color: isLowStock ? AppColors.warning : AppColors.primary,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                if (products.isNotEmpty)
+                  Text(
+                    '${products.length} items',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const Divider(height: 1),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
           if (products.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.xl),
-              child: Center(child: Text('No products to display')),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isLowStock ? Icons.check_circle_outline : Icons.inventory_2_outlined,
+                      size: 28,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      isLowStock ? 'No low stock warnings' : 'No items sold yet',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             )
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: products.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                color: isDark ? AppColors.darkBorder : AppColors.border,
+              ),
               itemBuilder: (context, index) {
                 final product = products[index];
                 return Padding(
@@ -51,52 +108,81 @@ class TopProductsList extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Theme.of(context).dividerColor,
+                          color: isDark
+                              ? AppColors.darkSurfaceMuted
+                              : AppColors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
                           ),
                         ),
-                        child: const Icon(Icons.inventory_2_outlined, size: 20),
                       ),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               product.name,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            const SizedBox(height: 2),
                             Text(
-                              isLowStock
-                                  ? 'Stock: ${product.stockQuantity}'
-                                  : 'Sold: ${product.soldQuantity}',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: isLowStock
-                                        ? AppColors.warning
-                                        : AppColors.textSecondary,
-                                    fontWeight: isLowStock
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
+                              '\$${product.price.toStringAsFixed(2)} each',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? AppColors.darkTextMuted
+                                    : AppColors.textMuted,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (isLowStock)
+                        StatusBadge(
+                          label: '${product.stockQuantity} in stock',
+                          type: product.stockQuantity == 0
+                              ? BadgeType.danger
+                              : BadgeType.warning,
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.darkSurfaceMuted
+                                : AppColors.surfaceMuted,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${product.soldQuantity} sold',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 );

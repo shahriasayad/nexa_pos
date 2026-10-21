@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-
-import '../../../../core/state/view_state.dart';
-import '../../products/data/repositories/mock_product_repository.dart';
-import '../../pos/data/repositories/mock_sales_repository.dart';
-import '../../../../shared/widgets/loading_view.dart';
-import '../../../../shared/widgets/error_view.dart';
-import '../../../../shared/widgets/responsive_layout.dart';
-import '../data/repositories/mock_dashboard_repository.dart';
-import '../domain/repositories/dashboard_repository.dart';
-import 'controllers/dashboard_controller.dart';
-import 'widgets/stat_card.dart';
-import 'widgets/sales_chart.dart';
-import 'widgets/recent_transactions_list.dart';
-import 'widgets/top_products_list.dart';
-
-import '../../../../core/layout/app_shell.dart';
-import '../../expenses/data/repositories/mock_expense_repository.dart';
-
+import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
+import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/dashboard/data/repositories/mock_dashboard_repository.dart';
+import 'package:nexa_pos/features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:nexa_pos/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:nexa_pos/features/dashboard/presentation/widgets/recent_transactions_list.dart';
+import 'package:nexa_pos/features/dashboard/presentation/widgets/sales_chart.dart';
+import 'package:nexa_pos/features/dashboard/presentation/widgets/stat_card.dart';
+import 'package:nexa_pos/features/dashboard/presentation/widgets/top_products_list.dart';
+import 'package:nexa_pos/features/expenses/data/repositories/mock_expense_repository.dart';
+import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
+import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
+import 'package:nexa_pos/shared/widgets/error_view.dart';
+import 'package:nexa_pos/shared/widgets/loading_view.dart';
+import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -51,33 +49,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      title: 'Dashboard',
+      title: 'Nexa POS - Dashboard',
       actions: [
         ListenableBuilder(
           listenable: _controller,
           builder: (context, _) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: DropdownButton<DashboardFilter>(
-                value: _controller.currentFilter,
-                onChanged: (DashboardFilter? newValue) {
-                  if (newValue != null) {
-                    _controller.setFilter(newValue);
-                  }
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: DashboardFilter.today,
-                    child: Text('Today'),
-                  ),
-                  DropdownMenuItem(
-                    value: DashboardFilter.thisWeek,
-                    child: Text('This Week'),
-                  ),
-                  DropdownMenuItem(
-                    value: DashboardFilter.thisMonth,
-                    child: Text('This Month'),
-                  ),
+            final filter = _controller.currentFilter;
+            return Container(
+              height: 38,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkSurfaceMuted
+                    : AppColors.surfaceMuted,
+                borderRadius: BorderRadius.circular(AppRadius.normal),
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkBorder
+                      : AppColors.border,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildFilterTab('Today', DashboardFilter.today, filter),
+                  _buildFilterTab('This Week', DashboardFilter.thisWeek, filter),
+                  _buildFilterTab('This Month', DashboardFilter.thisMonth, filter),
                 ],
               ),
             );
@@ -90,10 +87,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           switch (_controller.state) {
             case ViewState.initial:
             case ViewState.loading:
-              return const LoadingView(message: 'Loading Dashboard...');
+              return const LoadingView(message: 'Loading Dashboard data...');
             case ViewState.error:
               return ErrorView(
-                message: _controller.errorMessage ?? 'Unknown error',
+                message: _controller.errorMessage ?? 'Failed to load dashboard',
                 onRetry: _controller.loadDashboardData,
               );
             case ViewState.empty:
@@ -105,11 +102,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildFilterTab(
+    String label,
+    DashboardFilter value,
+    DashboardFilter selected,
+  ) {
+    final isSelected = value == selected;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.small),
+      onTap: () => _controller.setFilter(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark ? AppColors.darkSurface : AppColors.surface)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.small),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected
+                ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
+                : (isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDashboardContent(BuildContext context) {
     return RefreshIndicator(
       onRefresh: _controller.loadDashboardData,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: ResponsiveLayout(
           mobile: _buildMobileLayout(),
           tablet: _buildTabletLayout(),
@@ -119,42 +158,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMetricsGrid(
-    int crossAxisCount, {
-    double childAspectRatio = 1.5,
-  }) {
+  Widget _buildKpiSection(bool isMobile) {
     final metrics = _controller.metrics!;
-    return GridView.count(
-      crossAxisCount: crossAxisCount,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: childAspectRatio,
+
+    if (isMobile) {
+      return Column(
+        children: [
+          StatCard(
+            title: 'Total Revenue',
+            value: '\$${metrics.revenue.toStringAsFixed(2)}',
+            icon: Icons.attach_money,
+            iconColor: AppColors.success,
+            isHero: true,
+            subtitle: '${metrics.ordersCount} orders completed',
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: StatCard(
+                  title: 'Orders',
+                  value: '${metrics.ordersCount}',
+                  icon: Icons.receipt_long,
+                  iconColor: AppColors.info,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: StatCard(
+                  title: 'Est. Profit',
+                  value: '\$${metrics.estimatedProfit.toStringAsFixed(2)}',
+                  icon: Icons.trending_up,
+                  iconColor: AppColors.purple,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: StatCard(
+                  title: 'Refunds',
+                  value: '\$${metrics.refunds.toStringAsFixed(2)}',
+                  icon: Icons.keyboard_return,
+                  iconColor: AppColors.danger,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: StatCard(
+                  title: 'Low Stock',
+                  value: '${_controller.lowStockProducts.length}',
+                  icon: Icons.warning_amber_rounded,
+                  iconColor: AppColors.warning,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    // Tablet & Desktop: Deliberate hierarchy with hero revenue card + 4 supporting KPI cards
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        StatCard(
-          title: 'Revenue',
-          value: '\$${metrics.revenue.toStringAsFixed(2)}',
-          icon: Icons.attach_money,
-          iconColor: AppColors.success,
+        Expanded(
+          flex: 2,
+          child: StatCard(
+            title: 'Total Revenue',
+            value: '\$${metrics.revenue.toStringAsFixed(2)}',
+            icon: Icons.attach_money,
+            iconColor: AppColors.success,
+            isHero: true,
+            subtitle: '${metrics.ordersCount} completed orders in selected period',
+          ),
         ),
-        StatCard(
-          title: 'Orders',
-          value: '${metrics.ordersCount}',
-          icon: Icons.receipt_long,
-          iconColor: AppColors.info,
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          flex: 1,
+          child: StatCard(
+            title: 'Orders',
+            value: '${metrics.ordersCount}',
+            icon: Icons.receipt_long,
+            iconColor: AppColors.info,
+            subtitle: 'Transaction count',
+          ),
         ),
-        StatCard(
-          title: 'Est. Profit',
-          value: '\$${metrics.estimatedProfit.toStringAsFixed(2)}',
-          icon: Icons.trending_up,
-          iconColor: AppColors.purple,
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          flex: 1,
+          child: StatCard(
+            title: 'Est. Profit',
+            value: '\$${metrics.estimatedProfit.toStringAsFixed(2)}',
+            icon: Icons.trending_up,
+            iconColor: AppColors.purple,
+            subtitle: 'Net after costs',
+          ),
         ),
-        StatCard(
-          title: 'Refunds',
-          value: '\$${metrics.refunds.toStringAsFixed(2)}',
-          icon: Icons.keyboard_return,
-          iconColor: AppColors.danger,
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          flex: 1,
+          child: StatCard(
+            title: 'Refunds',
+            value: '\$${metrics.refunds.toStringAsFixed(2)}',
+            icon: Icons.keyboard_return,
+            iconColor: AppColors.danger,
+            subtitle: 'Total returned',
+          ),
         ),
       ],
     );
@@ -164,17 +276,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildMetricsGrid(2),
-        const SizedBox(height: 16),
+        _buildKpiSection(true),
+        const SizedBox(height: AppSpacing.lg),
         SalesChart(metrics: _controller.metrics!),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
         RecentTransactionsList(transactions: _controller.recentTransactions),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
         TopProductsList(
           title: 'Top Selling Products',
           products: _controller.topProducts,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
         TopProductsList(
           title: 'Low Stock Alerts',
           products: _controller.lowStockProducts,
@@ -188,31 +300,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildMetricsGrid(4),
-        const SizedBox(height: 16),
+        _buildKpiSection(false),
+        const SizedBox(height: AppSpacing.xl),
         SalesChart(metrics: _controller.metrics!),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.xl),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 2,
+              flex: 3,
               child: RecentTransactionsList(
                 transactions: _controller.recentTransactions,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.lg),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Column(
                 children: [
                   TopProductsList(
-                    title: 'Top Selling',
+                    title: 'Top Selling Products',
                     products: _controller.topProducts,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   TopProductsList(
-                    title: 'Low Stock',
+                    title: 'Low Stock Alerts',
                     products: _controller.lowStockProducts,
                     isLowStock: true,
                   ),
@@ -226,41 +338,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDesktopLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildMetricsGrid(4),
-              const SizedBox(height: 16),
-              SalesChart(metrics: _controller.metrics!),
-              const SizedBox(height: 16),
-              RecentTransactionsList(
-                transactions: _controller.recentTransactions,
+        _buildKpiSection(false),
+        const SizedBox(height: AppSpacing.xl),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left main column: Revenue trend chart & Recent transactions
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SalesChart(metrics: _controller.metrics!),
+                  const SizedBox(height: AppSpacing.xl),
+                  RecentTransactionsList(
+                    transactions: _controller.recentTransactions,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: [
-              TopProductsList(
-                title: 'Top Selling Products',
-                products: _controller.topProducts,
+            ),
+            const SizedBox(width: AppSpacing.xl),
+            // Right analytics column: Top products & Low stock alerts
+            Expanded(
+              flex: 2,
+              child: Column(
+                children: [
+                  TopProductsList(
+                    title: 'Top Selling Products',
+                    products: _controller.topProducts,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  TopProductsList(
+                    title: 'Low Stock Alerts',
+                    products: _controller.lowStockProducts,
+                    isLowStock: true,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TopProductsList(
-                title: 'Low Stock Alerts',
-                products: _controller.lowStockProducts,
-                isLowStock: true,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );

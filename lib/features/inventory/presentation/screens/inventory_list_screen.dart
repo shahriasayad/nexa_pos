@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
+import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
+import 'package:nexa_pos/features/inventory/presentation/controllers/inventory_controller.dart';
+import 'package:nexa_pos/features/inventory/presentation/screens/inventory_details_screen.dart';
+import 'package:nexa_pos/features/inventory/presentation/screens/stock_adjustment_dialog.dart';
+import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
+import 'package:nexa_pos/features/products/domain/models/product.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
+import 'package:nexa_pos/shared/widgets/empty_state_view.dart';
+import 'package:nexa_pos/shared/widgets/error_view.dart';
+import 'package:nexa_pos/shared/widgets/loading_view.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
-
-import '../../../../core/state/view_state.dart';
-import '../../../../shared/widgets/error_view.dart';
-import '../../../../shared/widgets/loading_view.dart';
-import '../../../../shared/widgets/empty_state_view.dart';
-import '../../../products/domain/models/product.dart';
-import '../../../products/data/repositories/mock_product_repository.dart';
-import '../../../categories/data/repositories/mock_category_repository.dart';
-import '../../data/repositories/mock_inventory_repository.dart';
-import '../controllers/inventory_controller.dart';
-import 'inventory_details_screen.dart';
-
-import '../../../../core/layout/app_shell.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({super.key});
@@ -27,6 +26,8 @@ class InventoryListScreen extends StatefulWidget {
 
 class _InventoryListScreenState extends State<InventoryListScreen> {
   late InventoryController _controller;
+  final TextEditingController _searchController = TextEditingController();
+  StockStatus? _filterStatus;
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -52,13 +54,34 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         builder: (_) =>
             InventoryDetailsScreen(controller: _controller, product: product),
       ),
-    );
+    ).then((_) {
+      if (mounted) _controller.loadInventory();
+    });
+  }
+
+  void _showAdjustStockDialog(Product product) {
+    showDialog(
+      context: context,
+      builder: (_) => StockAdjustmentDialog(
+        product: product,
+        controller: _controller,
+      ),
+    ).then((_) {
+      if (mounted) _controller.loadInventory();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return AppShell(
       title: 'Inventory',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh Inventory',
+          onPressed: _controller.loadInventory,
+        ),
+      ],
       child: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -66,7 +89,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted && _controller.errorMessage != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(_controller.errorMessage!)),
+                  SnackBar(
+                    content: Text(_controller.errorMessage!),
+                    backgroundColor: AppColors.danger,
+                  ),
                 );
                 _controller.clearError();
               }
@@ -76,67 +102,256 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           switch (_controller.state) {
             case ViewState.initial:
             case ViewState.loading:
-              return const LoadingView(message: 'Loading inventory...');
+              return const LoadingView(message: 'Loading inventory data...');
             case ViewState.error:
               return ErrorView(
-                message: 'Failed to load',
+                message: _controller.errorMessage ?? 'Failed to load inventory',
                 onRetry: _controller.loadInventory,
               );
             case ViewState.empty:
               return const EmptyStateView(
-                message: 'No inventory found',
-                icon: Icons.inventory_2_outlined,
+                message: 'No inventory items tracked',
+                icon: Icons.warehouse_outlined,
               );
             case ViewState.success:
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xl,
-                  vertical: AppSpacing.md,
-                ),
-                child: CustomCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      if (!ResponsiveLayout.isMobile(context))
-                        _buildTableHeader(),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _controller.products.length,
-                          itemBuilder: (context, index) {
-                            final product = _controller.products[index];
-                            return _buildInventoryRow(product);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              return _buildContent(context);
           }
         },
       ),
     );
   }
 
+  Widget _buildContent(BuildContext context) {
+    final products = _controller.products;
+    final totalSkus = products.length;
+    final inStock = products.where((p) => p.stockStatus == StockStatus.inStock).length;
+    final lowStock = products.where((p) => p.stockStatus == StockStatus.lowStock).length;
+    final outOfStock = products.where((p) => p.stockStatus == StockStatus.outOfStock).length;
+
+    // Filtered items
+    final query = _searchController.text.trim().toLowerCase();
+    final filtered = products.where((p) {
+      final matchesQuery = query.isEmpty ||
+          p.name.toLowerCase().contains(query) ||
+          p.sku.toLowerCase().contains(query);
+      final matchesStatus = _filterStatus == null || p.stockStatus == _filterStatus;
+      return matchesQuery && matchesStatus;
+    }).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // KPI Metric Summary Bar
+          _buildKpiBanner(totalSkus, inStock, lowStock, outOfStock),
+          const SizedBox(height: AppSpacing.md),
+
+          // Search and Filter Bar
+          _buildFilterBar(),
+          const SizedBox(height: AppSpacing.md),
+
+          // Inventory Table / List
+          Expanded(
+            child: CustomCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  if (!ResponsiveLayout.isMobile(context)) _buildTableHeader(),
+                  Expanded(
+                    child: filtered.isEmpty
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(AppSpacing.xl),
+                              child: Text('No inventory items match filter'),
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: filtered.length,
+                            separatorBuilder: (context, index) => Divider(
+                              height: 1,
+                              color: Theme.of(context).dividerTheme.color,
+                            ),
+                            itemBuilder: (context, index) {
+                              final product = filtered[index];
+                              return _buildInventoryRow(product);
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKpiBanner(int total, int inStock, int lowStock, int outOfStock) {
+    final isMobile = ResponsiveLayout.isMobile(context);
+
+    if (isMobile) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _buildMetricTile('Total Tracked', '$total', AppColors.info)),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(child: _buildMetricTile('In Stock', '$inStock', AppColors.success)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(child: _buildMetricTile('Low Stock Alerts', '$lowStock', AppColors.warning)),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(child: _buildMetricTile('Out of Stock', '$outOfStock', AppColors.danger)),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: _buildMetricTile('Total Tracked SKUs', '$total', AppColors.info)),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: _buildMetricTile('In Stock', '$inStock', AppColors.success)),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: _buildMetricTile('Low Stock Alerts', '$lowStock', AppColors.warning)),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(child: _buildMetricTile('Out of Stock', '$outOfStock', AppColors.danger)),
+      ],
+    );
+  }
+
+  Widget _buildMetricTile(String label, String value, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return CustomCard(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
+      child: Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 40,
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(fontSize: 13.5),
+              decoration: InputDecoration(
+                hintText: 'Search inventory by name or SKU...',
+                prefixIcon: const Icon(Icons.search, size: 18),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close, size: 16),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                          });
+                        },
+                      )
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                filled: true,
+                fillColor: isDark ? AppColors.darkSurface : AppColors.surface,
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          decoration: BoxDecoration(
+            border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
+            borderRadius: BorderRadius.circular(AppRadius.normal),
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<StockStatus?>(
+              value: _filterStatus,
+              hint: const Text('All Statuses', style: TextStyle(fontSize: 12.5)),
+              items: [
+                const DropdownMenuItem(value: null, child: Text('All Statuses')),
+                ...StockStatus.values.map(
+                  (s) => DropdownMenuItem(value: s, child: Text(s.name.toUpperCase())),
+                ),
+              ],
+              onChanged: (val) => setState(() => _filterStatus = val),
+              icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTableHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        vertical: AppSpacing.sm + 2,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted,
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
         ),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Expanded(flex: 3, child: _HeaderCell('Product')),
-          Expanded(flex: 1, child: _HeaderCell('Current Stock')),
-          Expanded(flex: 1, child: _HeaderCell('Min Stock')),
-          Expanded(flex: 1, child: _HeaderCell('Status')),
-          Expanded(flex: 2, child: _HeaderCell('Last Movement')),
+          Expanded(flex: 3, child: _HeaderCell('PRODUCT')),
+          Expanded(flex: 1, child: _HeaderCell('STOCK LEVEL')),
+          Expanded(flex: 1, child: _HeaderCell('MIN THRESHOLD')),
+          Expanded(flex: 1, child: _HeaderCell('STATUS')),
+          Expanded(flex: 2, child: _HeaderCell('LAST MOVEMENT')),
+          SizedBox(width: 90, child: _HeaderCell('ACTION', alignment: TextAlign.right)),
         ],
       ),
     );
@@ -145,39 +360,58 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildInventoryRow(Product product) {
     final lastMove = _controller.lastMovements[product.id];
     final isMobile = ResponsiveLayout.isMobile(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (isMobile) {
       return InkWell(
         onTap: () => _navigateToDetails(product),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Theme.of(context).dividerColor),
-            ),
-          ),
+        child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                product.name,
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                'SKU: ${product.sku}',
-                style: Theme.of(context).textTheme.bodySmall,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                        ),
+                        Text(
+                          'SKU: ${product.sku}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildStockBadge(product),
+                ],
               ),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStockIndicator(product),
-                  if (lastMove != null)
-                    Text(
-                      'Last: ${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
-                      style: Theme.of(context).textTheme.bodySmall,
+                  Text(
+                    'Stock: ${product.stockQuantity} (Min: ${product.minimumStock})',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _showAdjustStockDialog(product),
+                    icon: const Icon(Icons.edit_note, size: 16),
+                    label: const Text('Adjust', style: TextStyle(fontSize: 11)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
+                  ),
                 ],
               ),
             ],
@@ -188,31 +422,46 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
     return InkWell(
       onTap: () => _navigateToDetails(product),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
-          ),
-        ),
+      child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical: AppSpacing.md,
+          vertical: AppSpacing.sm + 2,
         ),
         child: Row(
           children: [
             Expanded(
               flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    product.name,
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSurfaceMuted : AppColors.surfaceMuted,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(Icons.warehouse_outlined, size: 16),
                   ),
-                  Text(
-                    product.sku,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          product.sku,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -220,31 +469,60 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             Expanded(
               flex: 1,
               child: Text(
-                '${product.stockQuantity}',
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                '${product.stockQuantity} ${product.unit}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
               ),
             ),
             Expanded(
               flex: 1,
               child: Text(
-                '${product.minimumStock}',
-                style: Theme.of(context).textTheme.bodyMedium,
+                '${product.minimumStock} ${product.unit}',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                ),
               ),
             ),
-            Expanded(flex: 1, child: _buildStockIndicator(product)),
+            Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: _buildStockBadge(product),
+              ),
+            ),
             Expanded(
               flex: 2,
               child: lastMove != null
                   ? Text(
-                      '${lastMove.type.name} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(color: AppColors.textSecondary),
+                      '${lastMove.type.name.toUpperCase()} (${lastMove.quantityChange > 0 ? '+' : ''}${lastMove.quantityChange})',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                      ),
                     )
                   : Text(
                       'No movements',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                      ),
                     ),
+            ),
+            SizedBox(
+              width: 90,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => _showAdjustStockDialog(product),
+                  icon: const Icon(Icons.edit_note, size: 16),
+                  label: const Text('Adjust', style: TextStyle(fontSize: 11.5)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -252,43 +530,47 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     );
   }
 
-  Widget _buildStockIndicator(Product product) {
-    BadgeType badgeType;
-    String label;
-
+  Widget _buildStockBadge(Product product) {
     switch (product.stockStatus) {
       case StockStatus.inStock:
-        badgeType = BadgeType.success;
-        label = 'In Stock';
-        break;
+        return const StatusBadge(
+          label: 'In Stock',
+          type: BadgeType.success,
+          icon: Icons.check_circle_outline,
+        );
       case StockStatus.lowStock:
-        badgeType = BadgeType.warning;
-        label = 'Low Stock';
-        break;
+        return const StatusBadge(
+          label: 'Low Stock',
+          type: BadgeType.warning,
+          icon: Icons.warning_amber_rounded,
+        );
       case StockStatus.outOfStock:
-        badgeType = BadgeType.danger;
-        label = 'Out of Stock';
-        break;
+        return const StatusBadge(
+          label: 'Out of Stock',
+          type: BadgeType.danger,
+          icon: Icons.cancel_outlined,
+        );
     }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: StatusBadge(label: label, type: badgeType),
-    );
   }
 }
 
 class _HeaderCell extends StatelessWidget {
   final String text;
-  const _HeaderCell(this.text);
+  final TextAlign alignment;
+
+  const _HeaderCell(this.text, {this.alignment = TextAlign.left});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       text,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+      textAlign: alignment,
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        fontSize: 11,
+        letterSpacing: 0.6,
+        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
       ),
     );
   }
