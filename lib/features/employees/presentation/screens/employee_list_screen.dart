@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/employees/data/repositories/mock_employee_repository.dart';
 import 'package:nexa_pos/features/employees/domain/models/employee.dart';
 import 'package:nexa_pos/features/employees/presentation/controllers/employee_controller.dart';
 import 'package:nexa_pos/features/employees/presentation/screens/employee_form_screen.dart';
@@ -35,7 +35,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = EmployeeController(repository: MockEmployeeRepository());
+    _controller = EmployeeController(repository: AppRepositories.instance.employeeRepo);
     _controller.loadEmployees();
   }
 

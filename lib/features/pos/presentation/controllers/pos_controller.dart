@@ -39,10 +39,24 @@ class PosController extends ChangeNotifier {
   SaleTransaction? lastCompletedSale;
   Customer? selectedCustomer;
 
+  double _discount = 0.0;
+  double _tax = 0.0;
+
   double get subtotal => cart.fold(0, (sum, item) => sum + item.lineTotal);
-  double get discount => 0.0; // Phase 5 doesn't specify complex discount rules
-  double get tax => 0.0; // Phase 5 doesn't specify complex tax rules
-  double get grandTotal => subtotal - discount + tax;
+  double get discount => _discount;
+  double get tax => _tax;
+  double get grandTotal =>
+      (subtotal - _discount + _tax).clamp(0.0, double.infinity);
+
+  void setDiscount(double value) {
+    _discount = value < 0 ? 0.0 : (value > subtotal ? subtotal : value);
+    notifyListeners();
+  }
+
+  void setTax(double value) {
+    _tax = value < 0 ? 0.0 : value;
+    notifyListeners();
+  }
 
   Future<void> searchProducts(String? query, {String? category}) async {
     searchQuery = query;
@@ -110,6 +124,8 @@ class PosController extends ChangeNotifier {
   void clearCart() {
     cart.clear();
     selectedCustomer = null;
+    _discount = 0.0;
+    _tax = 0.0;
     notifyListeners();
   }
 
@@ -227,7 +243,10 @@ class PosController extends ChangeNotifier {
         final c = await customerRepo.getCustomerById(selectedCustomer!.id);
         if (c != null) {
           await customerRepo.updateCustomer(
-            c.copyWith(totalSpending: c.totalSpending + grandTotal),
+            c.copyWith(
+              totalSpending: c.totalSpending + grandTotal,
+              loyaltyPoints: c.loyaltyPoints + grandTotal.toInt(),
+            ),
           );
         }
       }

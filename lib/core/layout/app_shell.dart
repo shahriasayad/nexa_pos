@@ -55,7 +55,10 @@ class AppShell extends StatelessWidget {
       drawer: isDesktop ? null : AppDrawer(currentRoute: route),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: (!isDesktop && showBottomNav)
-          ? _buildMobileBottomNav(context, route)
+          ? Builder(
+              builder: (scaffoldContext) =>
+                  _buildMobileBottomNav(scaffoldContext, route),
+            )
           : null,
       body: isDesktop
           ? Row(
@@ -426,9 +429,21 @@ class AppSidebar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              StatusBadge(
-                label: role,
-                type: role == 'Admin' ? BadgeType.success : BadgeType.info,
+              PopupMenuButton<EmployeeRole>(
+                tooltip: 'Switch user role',
+                onSelected: (newRole) {
+                  AuthProvider.instance.switchRole(newRole);
+                },
+                itemBuilder: (context) => EmployeeRole.values.map((r) {
+                  return PopupMenuItem(
+                    value: r,
+                    child: Text(r.displayName),
+                  );
+                }).toList(),
+                child: StatusBadge(
+                  label: role,
+                  type: role == 'Admin' ? BadgeType.success : BadgeType.info,
+                ),
               ),
             ],
           ),

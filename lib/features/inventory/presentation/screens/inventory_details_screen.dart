@@ -27,29 +27,36 @@ class InventoryDetailsScreen extends StatefulWidget {
 
 class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
   late Future<List<StockMovement>> _movementsFuture;
+  late Product _currentProduct;
 
   @override
   void initState() {
     super.initState();
+    _currentProduct = widget.product;
     _loadMovements();
   }
 
   void _loadMovements() {
-    _movementsFuture = widget.controller.getProductMovements(widget.product.id);
+    _movementsFuture = widget.controller.getProductMovements(_currentProduct.id);
   }
 
   void _showAdjustStockDialog() {
     showDialog(
       context: context,
       builder: (_) => StockAdjustmentDialog(
-        product: widget.product,
+        product: _currentProduct,
         controller: widget.controller,
       ),
-    ).then((_) {
+    ).then((_) async {
       if (mounted) {
-        setState(() {
-          _loadMovements();
-        });
+        final updated = await widget.controller.productRepo
+            .getProductById(_currentProduct.id);
+        if (mounted) {
+          setState(() {
+            if (updated != null) _currentProduct = updated;
+            _loadMovements();
+          });
+        }
       }
     });
   }
@@ -93,7 +100,7 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
     BadgeType badgeType;
     String label;
     IconData icon;
-    switch (widget.product.stockStatus) {
+    switch (_currentProduct.stockStatus) {
       case StockStatus.inStock:
         badgeType = BadgeType.success;
         label = 'In Stock';
@@ -122,7 +129,7 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.product.name,
+                    _currentProduct.name,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -130,7 +137,7 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'SKU: ${widget.product.sku} • Category: ${widget.product.categoryId}',
+                    'SKU: ${_currentProduct.sku} • Category: ${_currentProduct.categoryId}',
                     style: TextStyle(
                       fontSize: 12.5,
                       color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -149,27 +156,27 @@ class _InventoryDetailsScreenState extends State<InventoryDetailsScreen> {
             children: [
               _buildMetric(
                 'Current Stock',
-                '${widget.product.stockQuantity}',
-                widget.product.stockStatus == StockStatus.outOfStock
+                '${_currentProduct.stockQuantity}',
+                _currentProduct.stockStatus == StockStatus.outOfStock
                     ? AppColors.danger
                     : AppColors.primary,
                 context,
               ),
               _buildMetric(
                 'Minimum Stock',
-                '${widget.product.minimumStock}',
+                '${_currentProduct.minimumStock}',
                 isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                 context,
               ),
               _buildMetric(
                 'Unit of Measure',
-                widget.product.unit,
+                _currentProduct.unit,
                 isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                 context,
               ),
               _buildMetric(
                 'Stock Valuation',
-                '\$${(widget.product.stockQuantity * widget.product.purchasePrice).toStringAsFixed(2)}',
+                '\$${(_currentProduct.stockQuantity * _currentProduct.purchasePrice).toStringAsFixed(2)}',
                 isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                 context,
               ),

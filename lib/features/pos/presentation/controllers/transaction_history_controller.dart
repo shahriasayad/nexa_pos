@@ -30,10 +30,14 @@ class TransactionHistoryController extends ChangeNotifier {
         status: status,
       );
 
-      if (searchId != null && searchId!.isNotEmpty) {
-        transactions = transactions
-            .where((t) => t.id.contains(searchId!))
-            .toList();
+      if (searchId != null && searchId!.trim().isNotEmpty) {
+        final query = searchId!.trim().toLowerCase();
+        transactions = transactions.where((t) {
+          final idMatch = t.id.toLowerCase().contains(query);
+          final customerMatch =
+              t.customerName?.toLowerCase().contains(query) ?? false;
+          return idMatch || customerMatch;
+        }).toList();
       }
 
       state = transactions.isEmpty ? ViewState.empty : ViewState.success;
