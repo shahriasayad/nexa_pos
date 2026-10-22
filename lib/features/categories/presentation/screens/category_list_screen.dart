@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
 import 'package:nexa_pos/features/categories/domain/models/category.dart';
 import 'package:nexa_pos/features/categories/presentation/controllers/category_controller.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/empty_state_view.dart';
@@ -28,8 +27,8 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   void initState() {
     super.initState();
     _controller = CategoryController(
-      categoryRepo: MockCategoryRepository(),
-      productRepo: MockProductRepository(),
+      categoryRepo: AppRepositories.instance.categoryRepo,
+      productRepo: AppRepositories.instance.productRepo,
     );
     _controller.loadCategories();
   }
@@ -46,6 +45,34 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
       builder: (context) =>
           _CategoryFormDialog(controller: _controller, category: category),
     );
+  }
+
+  void _confirmDeleteCategory(Category category) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Category?'),
+        content: Text('Are you sure you want to delete "${category.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: AppColors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _controller.deleteCategory(category.id);
+    }
   }
 
   @override
@@ -206,7 +233,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                         ),
                         const SizedBox(width: 4),
                         TextButton.icon(
-                          onPressed: () => _controller.deleteCategory(cat.id),
+                          onPressed: () => _confirmDeleteCategory(cat),
                           icon: const Icon(
                             Icons.delete_outline,
                             size: 15,

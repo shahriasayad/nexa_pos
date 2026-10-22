@@ -93,6 +93,34 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     }
   }
 
+  void _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Customer'),
+        content: Text('Are you sure you want to remove "${widget.customer!.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await widget.controller.deleteCustomer(widget.customer!.id);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.customer != null;
@@ -320,8 +348,18 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
 
                   // Bottom Action Buttons
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      if (isEditing)
+                        CustomButton(
+                          label: 'Delete Customer',
+                          icon: Icons.delete_outline,
+                          variant: CustomButtonVariant.danger,
+                          height: 42,
+                          onPressed: widget.controller.state == ViewState.loading
+                              ? null
+                              : _delete,
+                        ),
+                      const Spacer(),
                       CustomButton(
                         label: 'Cancel',
                         variant: CustomButtonVariant.outline,

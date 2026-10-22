@@ -7,6 +7,7 @@ class AppColors {
   static const Color primarySoft = Color(0xFFDCFCE7);
 
   // Neutrals - Light
+  
   static const Color background = Color(0xFFF6F8F7);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceMuted = Color(0xFFF1F4F2);

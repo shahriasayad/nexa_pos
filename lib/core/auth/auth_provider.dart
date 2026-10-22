@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../features/employees/domain/models/employee.dart';
 import '../../features/employees/domain/repositories/employee_repository.dart';
-import '../../features/employees/data/repositories/mock_employee_repository.dart';
+import '../repositories/app_repositories.dart';
 
 class AuthProvider extends ChangeNotifier {
   static final AuthProvider instance = AuthProvider._internal();
 
-  final EmployeeRepository repository = MockEmployeeRepository();
+  final EmployeeRepository repository = AppRepositories.instance.employeeRepo;
   Employee? _currentUser;
 
   AuthProvider._internal() {
@@ -29,6 +29,15 @@ class AuthProvider extends ChangeNotifier {
   void switchUser(Employee emp) {
     _currentUser = emp;
     notifyListeners();
+  }
+
+  Future<void> switchRole(EmployeeRole role) async {
+    final emps = await repository.getEmployees();
+    final match = emps.firstWhere(
+      (e) => e.role == role,
+      orElse: () => emps.first,
+    );
+    switchUser(match);
   }
 
   // Used for tests to ensure permissions pass synchronously

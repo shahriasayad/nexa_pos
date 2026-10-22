@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/products/domain/models/product.dart';
 import 'package:nexa_pos/features/products/presentation/controllers/product_controller.dart';
 import 'package:nexa_pos/features/products/presentation/screens/product_details_screen.dart';
@@ -33,8 +32,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void initState() {
     super.initState();
     _controller = ProductController(
-      productRepo: MockProductRepository(),
-      categoryRepo: MockCategoryRepository(),
+      productRepo: AppRepositories.instance.productRepo,
+      categoryRepo: AppRepositories.instance.categoryRepo,
     );
     _controller.loadProducts();
   }
@@ -64,6 +63,34 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ProductDetailsScreen(controller: _controller, product: product),
       ),
     );
+  }
+
+  void _confirmDelete(Product product) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Product?'),
+        content: Text('Are you sure you want to delete "${product.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: AppColors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _controller.deleteProduct(product.id);
+    }
   }
 
   @override
@@ -147,11 +174,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   itemCount: _controller.products.length,
                   itemBuilder: (context, index) {
                     final product = _controller.products[index];
+                    final catName = _controller.categories
+                        .where((c) => c.id == product.categoryId)
+                        .firstOrNull
+                        ?.name;
                     return ProductListTile(
                       product: product,
+                      categoryName: catName,
                       onTap: () => _navigateToDetails(product),
                       onEdit: () => _navigateToForm(product.id),
-                      onDelete: () => _controller.deleteProduct(product.id),
+                      onDelete: () => _confirmDelete(product),
                     );
                   },
                 ),

@@ -23,7 +23,8 @@ class MockDashboardRepository implements DashboardRepository {
       case DashboardFilter.today:
         return DateTime(now.year, now.month, now.day);
       case DashboardFilter.thisWeek:
-        return now.subtract(Duration(days: now.weekday - 1));
+        final monday = now.subtract(Duration(days: now.weekday - 1));
+        return DateTime(monday.year, monday.month, monday.day);
       case DashboardFilter.thisMonth:
         return DateTime(now.year, now.month, 1);
     }
@@ -43,19 +44,28 @@ class MockDashboardRepository implements DashboardRepository {
 
     double revenue = 0.0;
     double refunds = 0.0;
+    List<double> chartData = List.generate(7, (i) => 0.0);
+
     for (var s in sales) {
       double currentRefunds = 0;
       for (var r in s.returns) {
-        currentRefunds += r.totalRefund;
+        currentRefunds += (r.totalRefund as num).toDouble();
       }
-      revenue += (s.total - currentRefunds);
+      final netSale = s.total - currentRefunds;
+      revenue += netSale;
       refunds += currentRefunds;
-    }
 
-    // Simplistic chart data generation based on actual revenue
-    List<double> chartData = List.generate(7, (i) => 0.0);
-    if (sales.isNotEmpty) {
-      chartData[6] = revenue; // Just put it all on the last day for now to satisfy the model
+      // Distribute into 7-day chart buckets
+      if (filter == DashboardFilter.thisWeek) {
+        final dayIndex = (s.timestamp.weekday - 1).clamp(0, 6);
+        chartData[dayIndex] += netSale;
+      } else if (filter == DashboardFilter.today) {
+        final bucket = ((s.timestamp.hour / 24) * 7).floor().clamp(0, 6);
+        chartData[bucket] += netSale;
+      } else {
+        final dayIndex = ((s.timestamp.day / 31) * 7).floor().clamp(0, 6);
+        chartData[dayIndex] += netSale;
+      }
     }
 
     return DashboardMetrics(
