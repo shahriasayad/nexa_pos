@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
 import 'package:nexa_pos/features/categories/domain/models/category.dart';
 import 'package:nexa_pos/features/pos/presentation/controllers/pos_controller.dart';
 import 'package:nexa_pos/features/products/domain/models/product.dart';
@@ -34,7 +34,8 @@ class _ProductListPanelState extends State<ProductListPanel> {
   }
 
   Future<void> _loadCategories() async {
-    final categories = await MockCategoryRepository().getCategories();
+    final categories =
+        await AppRepositories.instance.categoryRepo.getCategories();
     if (mounted) {
       setState(() {
         _categories = categories.where((c) => c.isActive).toList();

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/categories/data/repositories/mock_category_repository.dart';
-import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
 import 'package:nexa_pos/features/inventory/presentation/controllers/inventory_controller.dart';
 import 'package:nexa_pos/features/inventory/presentation/screens/inventory_details_screen.dart';
 import 'package:nexa_pos/features/inventory/presentation/screens/stock_adjustment_dialog.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/products/domain/models/product.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/empty_state_view.dart';
@@ -33,9 +31,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   void initState() {
     super.initState();
     _controller = InventoryController(
-      productRepo: MockProductRepository(),
-      categoryRepo: MockCategoryRepository(),
-      inventoryRepo: MockInventoryRepository(),
+      productRepo: AppRepositories.instance.productRepo,
+      categoryRepo: AppRepositories.instance.categoryRepo,
+      inventoryRepo: AppRepositories.instance.inventoryRepo,
     );
     _controller.loadInventory();
   }

@@ -31,6 +31,12 @@ class ProductDetailsScreen extends StatelessWidget {
             100)
         : 0.0;
 
+    final categoryName = controller.categories
+        .where((c) => c.id == product.categoryId)
+        .firstOrNull
+        ?.name ??
+        (product.categoryId.isNotEmpty ? 'Category #${product.categoryId}' : 'Uncategorized');
+
     return AppShell(
       title: 'Product Details',
       showBottomNav: false,
@@ -118,7 +124,7 @@ class ProductDetailsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'SKU: ${product.sku} • Category: ${product.categoryId}',
+                              'SKU: ${product.sku} • Category: $categoryName',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
 import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
 import 'package:nexa_pos/features/pos/domain/models/sale_transaction.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/returns/domain/models/return_transaction.dart';
 import 'package:nexa_pos/features/returns/presentation/controllers/return_controller.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
@@ -33,8 +32,9 @@ class _ReturnDialogState extends State<ReturnDialog> {
     super.initState();
     _controller = ReturnController(
       salesRepo: widget.salesRepo,
-      productRepo: MockProductRepository(),
-      inventoryRepo: MockInventoryRepository(),
+      productRepo: AppRepositories.instance.productRepo,
+      inventoryRepo: AppRepositories.instance.inventoryRepo,
+      customerRepo: AppRepositories.instance.customerRepo,
     );
   }
 

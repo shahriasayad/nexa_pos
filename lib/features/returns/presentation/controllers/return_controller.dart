@@ -6,6 +6,7 @@ import '../../../../features/pos/domain/repositories/sales_repository.dart';
 import '../../../../features/products/domain/repositories/product_repository.dart';
 import '../../../../features/inventory/domain/models/stock_movement.dart';
 import '../../../../features/inventory/domain/repositories/inventory_repository.dart';
+import '../../../../features/customers/domain/repositories/customer_repository.dart';
 import '../../domain/models/return_transaction.dart';
 import '../../../../core/auth/auth_provider.dart';
 import '../../../employees/domain/models/employee.dart';
@@ -14,11 +15,13 @@ class ReturnController extends ChangeNotifier {
   final SalesRepository salesRepo;
   final ProductRepository productRepo;
   final InventoryRepository inventoryRepo;
+  final CustomerRepository? customerRepo;
 
   ReturnController({
     required this.salesRepo,
     required this.productRepo,
     required this.inventoryRepo,
+    this.customerRepo,
   });
 
   ViewState state = ViewState.initial;
@@ -96,6 +99,16 @@ class ReturnController extends ChangeNotifier {
 
       // Save return
       await salesRepo.returnItems(sale.id, returnTx);
+
+      // Adjust customer spending if customer was linked
+      if (sale.customerId != null && customerRepo != null) {
+        final c = await customerRepo!.getCustomerById(sale.customerId!);
+        if (c != null) {
+          final newSpending =
+              (c.totalSpending - refundAmount).clamp(0.0, double.infinity);
+          await customerRepo!.updateCustomer(c.copyWith(totalSpending: newSpending));
+        }
+      }
 
       // Add to inventory
       for (var rItem in returnItems) {

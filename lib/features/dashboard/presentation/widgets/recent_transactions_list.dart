@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
+import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
+import 'package:nexa_pos/features/pos/presentation/screens/transaction_details_screen.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
 import 'package:nexa_pos/shared/widgets/status_badge.dart';
 
@@ -100,68 +103,81 @@ class RecentTransactionsList extends StatelessWidget {
                 final timeFormatted =
                     '${trx.date.hour.toString().padLeft(2, '0')}:${trx.date.minute.toString().padLeft(2, '0')}';
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isRefund
-                              ? AppColors.danger.withValues(alpha: 0.1)
-                              : AppColors.primarySoft,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          isRefund ? Icons.keyboard_return : Icons.check_circle_outline,
-                          size: 16,
-                          color: isRefund ? AppColors.danger : AppColors.primary,
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TransactionDetailsScreen(
+                          transactionId: trx.id,
+                          salesRepo: AppRepositories.instance.salesRepo as MockSalesRepository,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'TRX-${trx.id.length > 8 ? trx.id.substring(trx.id.length - 8) : trx.id}',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isRefund
+                                ? AppColors.danger.withValues(alpha: 0.1)
+                                : AppColors.primarySoft,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            isRefund ? Icons.keyboard_return : Icons.check_circle_outline,
+                            size: 16,
+                            color: isRefund ? AppColors.danger : AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'TRX-${trx.id.length > 8 ? trx.id.substring(trx.id.length - 8) : trx.id}',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              timeFormatted,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isDark
-                                    ? AppColors.darkTextMuted
-                                    : AppColors.textMuted,
+                              const SizedBox(height: 2),
+                              Text(
+                                timeFormatted,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? AppColors.darkTextMuted
+                                      : AppColors.textMuted,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      StatusBadge(
-                        label: trx.status.toUpperCase(),
-                        type: isRefund ? BadgeType.danger : BadgeType.success,
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Text(
-                        '${isRefund ? '-' : ''}\$${trx.total.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isRefund
-                              ? AppColors.danger
-                              : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                        StatusBadge(
+                          label: trx.status.toUpperCase(),
+                          type: isRefund ? BadgeType.danger : BadgeType.success,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: AppSpacing.md),
+                        Text(
+                          '${isRefund ? '-' : ''}\$${trx.total.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: isRefund
+                                ? AppColors.danger
+                                : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
