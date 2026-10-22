@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
@@ -30,7 +31,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   void initState() {
     super.initState();
     _controller = TransactionHistoryController(
-      salesRepo: MockSalesRepository(),
+      salesRepo: AppRepositories.instance.salesRepo,
     );
     _controller.loadTransactions();
   }

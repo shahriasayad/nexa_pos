@@ -7,6 +7,7 @@ import 'package:nexa_pos/shared/widgets/status_badge.dart';
 
 class ProductListTile extends StatelessWidget {
   final Product product;
+  final String? categoryName;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -14,6 +15,7 @@ class ProductListTile extends StatelessWidget {
   const ProductListTile({
     super.key,
     required this.product,
+    this.categoryName,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -103,7 +105,7 @@ class ProductListTile extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Text(
-            product.categoryId,
+            categoryName ?? (product.categoryId.isNotEmpty ? 'Category #${product.categoryId}' : '—'),
             style: TextStyle(
               fontSize: 12.5,
               color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
