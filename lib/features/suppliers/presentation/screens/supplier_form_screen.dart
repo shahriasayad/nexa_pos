@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/suppliers/data/repositories/mock_supplier_repository.dart';
 import 'package:nexa_pos/features/suppliers/domain/models/supplier.dart';
 import 'package:nexa_pos/features/suppliers/presentation/controllers/supplier_controller.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
@@ -35,7 +35,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = SupplierController(repository: MockSupplierRepository());
+    _controller = SupplierController(repository: AppRepositories.instance.supplierRepo);
     _nameController = TextEditingController(text: widget.supplier?.name ?? '');
     _contactController = TextEditingController(
       text: widget.supplier?.contactName ?? '',

@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
-import 'package:nexa_pos/features/purchases/data/repositories/mock_purchase_repository.dart';
 import 'package:nexa_pos/features/purchases/domain/models/purchase_order.dart';
 import 'package:nexa_pos/features/purchases/presentation/controllers/purchase_controller.dart';
 import 'package:nexa_pos/features/purchases/presentation/screens/purchase_form_screen.dart';
@@ -39,9 +37,9 @@ class _PurchaseListScreenState extends State<PurchaseListScreen> {
   void initState() {
     super.initState();
     _controller = PurchaseController(
-      purchaseRepo: MockPurchaseRepository(),
-      inventoryRepo: MockInventoryRepository(),
-      productRepo: MockProductRepository(),
+      purchaseRepo: AppRepositories.instance.purchaseRepo,
+      inventoryRepo: AppRepositories.instance.inventoryRepo,
+      productRepo: AppRepositories.instance.productRepo,
     );
     _controller.loadPurchases();
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nexa_pos/core/navigation/app_router.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
 import 'package:nexa_pos/shared/widgets/custom_card.dart';
@@ -50,7 +51,17 @@ class TopProductsList extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (products.isNotEmpty)
+                if (isLowStock)
+                  TextButton(
+                    onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.inventory),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text('Manage Stock', style: TextStyle(fontSize: 12)),
+                  )
+                else if (products.isNotEmpty)
                   Text(
                     '${products.length} items',
                     style: TextStyle(
@@ -100,13 +111,21 @@ class TopProductsList extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final product = products[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  child: Row(
-                    children: [
+                return InkWell(
+                  onTap: () {
+                    if (isLowStock) {
+                      Navigator.pushReplacementNamed(context, AppRoutes.inventory);
+                    } else {
+                      Navigator.pushReplacementNamed(context, AppRoutes.products);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Row(
+                      children: [
                       Container(
                         width: 24,
                         height: 24,
@@ -185,8 +204,9 @@ class TopProductsList extends StatelessWidget {
                         ),
                     ],
                   ),
-                );
-              },
+                ),
+              );
+            },
             ),
         ],
       ),

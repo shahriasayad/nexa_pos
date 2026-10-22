@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/customers/data/repositories/mock_customer_repository.dart';
 import 'package:nexa_pos/features/customers/domain/models/customer.dart';
-import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
-import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
 import 'package:nexa_pos/features/pos/presentation/controllers/pos_controller.dart';
 import 'package:nexa_pos/features/pos/presentation/screens/checkout_dialog.dart';
 import 'package:nexa_pos/features/pos/presentation/screens/customer_selection_dialog.dart';
 import 'package:nexa_pos/features/pos/presentation/screens/receipt_dialog.dart';
 import 'package:nexa_pos/features/pos/presentation/screens/widgets/cart_panel.dart';
 import 'package:nexa_pos/features/pos/presentation/screens/widgets/product_list_panel.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
 
 class PosScreen extends StatefulWidget {
@@ -31,10 +28,10 @@ class _PosScreenState extends State<PosScreen> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     _controller = PosController(
-      productRepo: MockProductRepository(),
-      inventoryRepo: MockInventoryRepository(),
-      salesRepo: MockSalesRepository(),
-      customerRepo: MockCustomerRepository(),
+      productRepo: AppRepositories.instance.productRepo,
+      inventoryRepo: AppRepositories.instance.inventoryRepo,
+      salesRepo: AppRepositories.instance.salesRepo,
+      customerRepo: AppRepositories.instance.customerRepo,
     );
     _controller.searchProducts(null);
     _tabController = TabController(length: 2, vsync: this);

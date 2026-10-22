@@ -41,7 +41,9 @@ class MockProductRepository implements ProductRepository {
       bool matchesSearch =
           search == null ||
           p.name.toLowerCase().contains(search.toLowerCase()) ||
-          p.sku.toLowerCase().contains(search.toLowerCase());
+          p.sku.toLowerCase().contains(search.toLowerCase()) ||
+          (p.barcode != null &&
+              p.barcode!.toLowerCase().contains(search.toLowerCase()));
       bool matchesCategory = categoryId == null || p.categoryId == categoryId;
       return matchesSearch && matchesCategory;
     }).toList();
