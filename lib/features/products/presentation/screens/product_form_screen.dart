@@ -87,11 +87,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       final product = Product(
-        id: _existingProduct?.id ??
-            DateTime.now().millisecondsSinceEpoch.toString(),
+        id: _existingProduct?.id ?? '',
         name: _nameController.text.trim(),
         sku: _skuController.text.trim(),
-        barcode: _barcodeController.text.trim(),
+        barcode: _barcodeController.text.trim().isEmpty
+            ? null
+            : _barcodeController.text.trim(),
         categoryId: _categoryId!,
         purchasePrice: double.parse(_purchasePriceController.text),
         sellingPrice: double.parse(_sellingPriceController.text),
@@ -102,9 +103,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         updatedAt: DateTime.now(),
       );
 
-      await widget.controller.saveProduct(product);
+      final success = await widget.controller.saveProduct(product);
 
-      if (mounted) Navigator.pop(context);
+      if (success && mounted) {
+        Navigator.pop(context);
+      } else if (mounted && widget.controller.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.controller.errorMessage!),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
     }
   }
 

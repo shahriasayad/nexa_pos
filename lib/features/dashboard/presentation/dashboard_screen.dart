@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:nexa_pos/core/layout/app_shell.dart';
+import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/dashboard/data/repositories/mock_dashboard_repository.dart';
 import 'package:nexa_pos/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:nexa_pos/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:nexa_pos/features/dashboard/presentation/widgets/recent_transactions_list.dart';
 import 'package:nexa_pos/features/dashboard/presentation/widgets/sales_chart.dart';
 import 'package:nexa_pos/features/dashboard/presentation/widgets/stat_card.dart';
 import 'package:nexa_pos/features/dashboard/presentation/widgets/top_products_list.dart';
-import 'package:nexa_pos/features/expenses/data/repositories/mock_expense_repository.dart';
-import 'package:nexa_pos/features/pos/data/repositories/mock_sales_repository.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/shared/widgets/error_view.dart';
 import 'package:nexa_pos/shared/widgets/loading_view.dart';
 import 'package:nexa_pos/shared/widgets/responsive_layout.dart';
@@ -31,11 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _controller = DashboardController(
-      repository: MockDashboardRepository(
-        salesRepo: MockSalesRepository(),
-        productRepo: MockProductRepository(),
-        expenseRepo: MockExpenseRepository(),
-      ),
+      repository: AppRepositories.instance.dashboardRepo,
     );
     _controller.loadDashboardData();
   }
@@ -171,6 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             iconColor: AppColors.success,
             isHero: true,
             subtitle: '${metrics.ordersCount} orders completed',
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
@@ -181,6 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   value: '${metrics.ordersCount}',
                   icon: Icons.receipt_long,
                   iconColor: AppColors.info,
+                  onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -190,6 +186,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   value: '\$${metrics.estimatedProfit.toStringAsFixed(2)}',
                   icon: Icons.trending_up,
                   iconColor: AppColors.purple,
+                  onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.expenses),
                 ),
               ),
             ],
@@ -203,6 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   value: '\$${metrics.refunds.toStringAsFixed(2)}',
                   icon: Icons.keyboard_return,
                   iconColor: AppColors.danger,
+                  onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -212,6 +210,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   value: '${_controller.lowStockProducts.length}',
                   icon: Icons.warning_amber_rounded,
                   iconColor: AppColors.warning,
+                  onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.inventory),
                 ),
               ),
             ],
@@ -233,6 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             iconColor: AppColors.success,
             isHero: true,
             subtitle: '${metrics.ordersCount} completed orders in selected period',
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
           ),
         ),
         const SizedBox(width: AppSpacing.md),
@@ -244,6 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icons.receipt_long,
             iconColor: AppColors.info,
             subtitle: 'Transaction count',
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
           ),
         ),
         const SizedBox(width: AppSpacing.md),
@@ -255,6 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icons.trending_up,
             iconColor: AppColors.purple,
             subtitle: 'Net after costs',
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.expenses),
           ),
         ),
         const SizedBox(width: AppSpacing.md),
@@ -266,6 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icons.keyboard_return,
             iconColor: AppColors.danger,
             subtitle: 'Total returned',
+            onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.transactions),
           ),
         ),
       ],

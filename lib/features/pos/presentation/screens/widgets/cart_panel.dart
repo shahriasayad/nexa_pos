@@ -381,28 +381,90 @@ class CartPanel extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 // Tax & Discount
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Discount',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? AppColors.darkTextMuted
-                            : AppColors.textMuted,
+                InkWell(
+                  onTap: () {
+                    final textController = TextEditingController(
+                      text: controller.discount > 0
+                          ? controller.discount.toStringAsFixed(2)
+                          : '',
+                    );
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Apply Order Discount'),
+                        content: TextField(
+                          controller: textController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          decoration: const InputDecoration(
+                            labelText: 'Discount Amount (\$)',
+                            prefixIcon: Icon(Icons.attach_money),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              controller.setDiscount(0.0);
+                              Navigator.pop(ctx);
+                            },
+                            child: const Text('Clear'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              final val =
+                                  double.tryParse(textController.text.trim()) ??
+                                      0.0;
+                              controller.setDiscount(val);
+                              Navigator.pop(ctx);
+                            },
+                            child: const Text('Apply'),
+                          ),
+                        ],
                       ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Discount',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark
+                                    ? AppColors.darkTextMuted
+                                    : AppColors.textMuted,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.edit_outlined,
+                              size: 13,
+                              color: AppColors.primary,
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '-\$${controller.discount.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: controller.discount > 0
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: controller.discount > 0
+                                ? AppColors.danger
+                                : (isDark
+                                    ? AppColors.darkTextMuted
+                                    : AppColors.textMuted),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '-\$${controller.discount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? AppColors.darkTextMuted
-                            : AppColors.textMuted,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 10),
 

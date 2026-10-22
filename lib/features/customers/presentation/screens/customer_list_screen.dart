@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/customers/data/repositories/mock_customer_repository.dart';
 import 'package:nexa_pos/features/customers/domain/models/customer.dart';
 import 'package:nexa_pos/features/customers/presentation/controllers/customer_controller.dart';
 import 'package:nexa_pos/features/customers/presentation/screens/customer_form_screen.dart';
@@ -33,7 +33,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = CustomerController(repository: MockCustomerRepository());
+    _controller = CustomerController(repository: AppRepositories.instance.customerRepo);
     _controller.loadCustomers();
   }
 
@@ -54,6 +54,36 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     );
     if (result == true) {
       _controller.loadCustomers(query: _searchController.text);
+    }
+  }
+
+  Future<void> _confirmDelete(Customer customer) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Customer'),
+        content: Text('Are you sure you want to remove "${customer.name}"? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _controller.deleteCustomer(customer.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Customer "${customer.name}" deleted')),
+        );
+      }
     }
   }
 
@@ -367,10 +397,20 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               ),
             ),
             DataCell(
-              IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                tooltip: 'Edit Customer',
-                onPressed: () => _openCustomerForm(customer),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    tooltip: 'Edit Customer',
+                    onPressed: () => _openCustomerForm(customer),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
+                    tooltip: 'Delete Customer',
+                    onPressed: () => _confirmDelete(customer),
+                  ),
+                ],
               ),
             ),
           ],
@@ -446,9 +486,18 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      onPressed: () => _openCustomerForm(customer),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          onPressed: () => _openCustomerForm(customer),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
+                          onPressed: () => _confirmDelete(customer),
+                        ),
+                      ],
                     ),
                   ],
                 ),

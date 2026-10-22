@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/inventory/data/repositories/mock_inventory_repository.dart';
-import 'package:nexa_pos/features/products/data/repositories/mock_product_repository.dart';
 import 'package:nexa_pos/features/products/domain/models/product.dart';
-import 'package:nexa_pos/features/purchases/data/repositories/mock_purchase_repository.dart';
 import 'package:nexa_pos/features/purchases/domain/models/purchase_order.dart';
 import 'package:nexa_pos/features/purchases/presentation/controllers/purchase_controller.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
@@ -26,7 +24,7 @@ class PurchaseFormScreen extends StatefulWidget {
 
 class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
   late PurchaseController _controller;
-  final _productRepo = MockProductRepository();
+  final _productRepo = AppRepositories.instance.productRepo;
 
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
@@ -40,8 +38,8 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
   void initState() {
     super.initState();
     _controller = PurchaseController(
-      purchaseRepo: MockPurchaseRepository(),
-      inventoryRepo: MockInventoryRepository(),
+      purchaseRepo: AppRepositories.instance.purchaseRepo,
+      inventoryRepo: AppRepositories.instance.inventoryRepo,
       productRepo: _productRepo,
     );
     if (widget.purchase != null) {

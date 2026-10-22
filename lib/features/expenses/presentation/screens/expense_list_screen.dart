@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:nexa_pos/core/layout/app_shell.dart';
 import 'package:nexa_pos/core/navigation/app_router.dart';
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/expenses/data/repositories/mock_expense_repository.dart';
 import 'package:nexa_pos/features/expenses/domain/models/expense.dart';
 import 'package:nexa_pos/features/expenses/presentation/controllers/expense_controller.dart';
 import 'package:nexa_pos/features/expenses/presentation/screens/expense_form_screen.dart';
@@ -35,7 +35,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = ExpenseController(repository: MockExpenseRepository());
+    _controller = ExpenseController(repository: AppRepositories.instance.expenseRepo);
     _controller.loadExpenses();
   }
 

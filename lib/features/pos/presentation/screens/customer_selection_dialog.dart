@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:nexa_pos/core/repositories/app_repositories.dart';
 import 'package:nexa_pos/core/state/view_state.dart';
 import 'package:nexa_pos/core/theme/app_colors.dart';
 import 'package:nexa_pos/core/theme/app_spacing.dart';
-import 'package:nexa_pos/features/customers/data/repositories/mock_customer_repository.dart';
 import 'package:nexa_pos/features/customers/presentation/controllers/customer_controller.dart';
 import 'package:nexa_pos/shared/widgets/custom_button.dart';
 import 'package:nexa_pos/shared/widgets/empty_state_view.dart';
@@ -24,7 +24,9 @@ class _CustomerSelectionDialogState extends State<CustomerSelectionDialog> {
   @override
   void initState() {
     super.initState();
-    _controller = CustomerController(repository: MockCustomerRepository());
+    _controller = CustomerController(
+      repository: AppRepositories.instance.customerRepo,
+    );
     _controller.loadCustomers();
   }
 
